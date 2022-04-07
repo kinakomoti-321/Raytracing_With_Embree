@@ -5,7 +5,7 @@ project(main LANGUAGES C CXX)
 
 find_package(embree 3.0 REQUIRED)
 
-add_executable(main "src/main.cpp")
+add_executable(main "src/RendererTest.cpp")
 target_include_directories(main PRIVATE "include")
 target_include_directories(main PRIVATE "external")
 target_link_libraries(main embree)

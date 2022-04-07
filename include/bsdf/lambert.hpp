@@ -19,8 +19,8 @@ public:
     Lambert(const Vec3& rho) : rho(rho) {};
 
 public:
-    Vec3 samplingBSDF(const Vec3& wo, Vec3& wi, float& pdf, Sampler& sampler) const {
-        float u = sampler.getSample(), v = sampler.getSample();
+    Vec3 samplingBSDF(const Vec3& wo, Vec3& wi, float& pdf, std::shared_ptr<Sampler>& sampler) const {
+        float u = sampler->getSample(), v = sampler->getSample();
         wi = HemiSphereSampling(u, v, pdf);
         return rho * PI_INV;
     };

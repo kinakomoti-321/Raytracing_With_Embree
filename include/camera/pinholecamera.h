@@ -1,7 +1,9 @@
 #pragma once 
 #include "../math/vec3.h"
 #include "../core/ray.h"
-class PinholeCamera {
+#include "camera/camera.hpp"
+#include <string>
+class PinholeCamera :public Camera {
 private:
     Vec3 origin;
     Vec3 cameraDir;
@@ -16,10 +18,14 @@ public:
         cameraSide = b;
     }
 
-    Ray getCameraRay(float u, float v) {
+    Ray getCameraRay(float u, float v) const override {
         Ray ray;
         ray.origin = origin;
         ray.direction = normalize(cameraDir * p - cameraSide * v + cameraUp * u);
         return ray;
+    }
+
+    std::string getCameraType()const {
+        return "PinholeCamera";
     }
 };

@@ -8,6 +8,7 @@
 #include "math/vec3.h"
 #include "math/vec2.h"
 #include "core/constant.hpp"
+#include "bsdf/light.hpp"
 #include <embree3/rtcore.h>
 
 class Polygon {
@@ -17,6 +18,7 @@ private:
     std::vector<float> normals;
     std::vector<float> texcoords;
     std::vector<std::shared_ptr<BSDF>> material;
+    std::vector<std::shared_ptr<Light>> light;
 
     unsigned int nPoly;
 
@@ -25,7 +27,7 @@ public:
         nPoly = 0;
     }
 
-    void AddPolygon(const std::string& filepath, std::shared_ptr<BSDF>& mat) {
+    void AddPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& mat, const std::shared_ptr<Light>& lit = nullptr) {
         std::vector<float> vert;
         std::vector<unsigned int> index;
         std::vector<float> nor;
@@ -62,6 +64,7 @@ public:
 
         for (int i = 0; i < index.size() / 3; i++) {
             material.push_back(mat);
+            light.push_back(lit);
         }
         std::cout << "material loaded" << std::endl;
 
@@ -152,8 +155,14 @@ public:
         return uv1 * (1.0f - barycentric[0] - barycentric[1]) + uv2 * barycentric[0] + uv3 * barycentric[1];
     }
 
-    std::shared_ptr<BSDF> getMaterial(unsigned int FaceID) {
+    std::shared_ptr<BSDF> getMaterial(unsigned int FaceID)const {
         return material[FaceID];
+    }
+    std::shared_ptr<Light> getLight(unsigned int FaceID)const {
+        return light[FaceID];
+    }
+    bool hasLight(unsigned int FaceID)const {
+        return light[FaceID] != nullptr;
     }
 
     void attachGeometry(RTCGeometry& geom) const {
@@ -172,6 +181,5 @@ public:
             ib[i] = indices[i];
         }
     }
-
 
 };
