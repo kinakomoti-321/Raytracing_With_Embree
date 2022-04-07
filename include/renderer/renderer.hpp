@@ -60,7 +60,7 @@ public:
 
                     Ray cameraRay = camera->getCameraRay(u, v);
                     Vec3 radiance = integrator->integrate(cameraRay, scene, sampler);
-                    if (radiance[0] < 1.0)std::cout << "radiance" << radiance << std::endl;
+                    // if (radiance[0] < 1.0)std::cout << "radiance" << radiance << std::endl;
                     sumRadiance += radiance;
                 }
 

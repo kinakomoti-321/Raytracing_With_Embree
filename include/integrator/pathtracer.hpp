@@ -23,7 +23,8 @@ public:
             throughput /= rp;
 
             IntersectInfo info;
-            if (!scene.Intersection(ray, info)) {
+            if (!scene.Intersection(next_ray, info)) {
+                // if (throughput[0] < 1.0) std::cout << "throughput" << throughput << std::endl;
                 LTE = throughput * Vec3(1.0);
                 break;
             }
@@ -46,11 +47,11 @@ public:
             const Vec3 next_direction = localToWorld(wi, t, info.normal, b);
             const float cosine = std::abs(dot(info.normal, next_direction));
             throughput *= bsdf * cosine / pdf;
-            std::cout << "throughput" << throughput << std::endl;
+            // std::cout << "throughput" << throughput << std::endl;
             next_ray = Ray(info.position + 0.01f * next_direction, next_direction);
 
         }
-        if (LTE[0] < 1.0)std::cout << "LTE" << LTE << std::endl;
+        // if (LTE[0] < 1.0)std::cout << "LTE" << LTE << std::endl;
         return LTE;
     }
     std::string getIntegratorType()const {

@@ -16,10 +16,10 @@
 int main() {
     const unsigned int width = 512, height = 512;
 
-    auto mat1 = std::make_shared<Lambert>(Vec3(1.0));
+    auto mat1 = std::make_shared<Lambert>(Vec3(0.9f));
 
-    Vec3 cameraPos(0, 0, 1);
-    Vec3 cameraDir(0, 0, -1);
+    Vec3 cameraPos(1, 0, 0);
+    Vec3 cameraDir(-1, 0, 0);
 
     auto camera = std::make_shared<PinholeCamera>(cameraPos, cameraDir, 2.0f);
 
@@ -31,7 +31,7 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 10);
+    renderer.rendererSet(width, height, integrator, camera, 100);
     renderer.Render(scene, "NormalCheck", sampler);
     return 0;
 }
