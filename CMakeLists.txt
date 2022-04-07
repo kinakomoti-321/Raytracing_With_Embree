@@ -7,5 +7,6 @@ find_package(embree 3.0 REQUIRED)
 
 add_executable(main "src/main.cpp")
 target_include_directories(main PRIVATE "include")
+target_include_directories(main PRIVATE "external")
 target_link_libraries(main embree)
 target_compile_features(main PRIVATE cxx_std_17)
