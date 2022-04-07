@@ -7,13 +7,15 @@
 #include <iostream>
 #include "math/vec3.h"
 #include "math/vec2.h"
+#include "core/constant.hpp"
 #include <embree3/rtcore.h>
+
 class Polygon {
 private:
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
     std::vector<float> normals;
-    std::vector<float> texcoord;
+    std::vector<float> texcoords;
     std::vector<std::shared_ptr<BSDF>> material;
 
     unsigned int nPoly;
@@ -27,8 +29,8 @@ public:
         std::vector<float> vert;
         std::vector<unsigned int> index;
         std::vector<float> nor;
-        std::vector<float> texcoords;
-        if (!loadObj(filepath, vert, index, nor, texcoords)) {
+        std::vector<float> uv;
+        if (!loadObj(filepath, vert, index, nor, uv)) {
             std::cerr << "can't load object : " << filepath << std::endl;
             return;
         }
@@ -52,8 +54,8 @@ public:
         }
         std::cout << "index loaded" << std::endl;
 
-        for (int i = 0; i < texcoord.size(); i++) {
-            texcoord.push_back(texcoords[i]);
+        for (int i = 0; i < uv.size(); i++) {
+            texcoords.push_back(uv[i]);
         }
 
         std::cout << "texcoord loaded" << std::endl;
@@ -65,11 +67,16 @@ public:
 
         nPoly = indices.size() / 3;
 
+        std::cout << "vertex " << vertices << std::endl;
+        std::cout << "indice " << indices << std::endl;
+        std::cout << "normal " << normals << std::endl;
+
         std::cout << "model road " << filepath << " complete" << std::endl << "the number Polygon of this model is " << nPoly << std::endl;
         std::cout << std::endl << "-------------------" << std::endl;
         std::cout << filepath << " load end" << std::endl;
         std::cout << "-------------------" << std::endl;
     }
+
     unsigned int nFace() const {
         return nPoly;
     }
@@ -114,8 +121,11 @@ public:
     Vec2 getVertTexcoord(const unsigned int index) const {
         Vec2 uv;
         unsigned id = index * 2;
-        uv[0] = texcoord[id + 0];
-        uv[1] = texcoord[id + 1];
+        // std::cout << "test1" << id << std::endl;
+        uv[0] = texcoords[id + 0];
+        // std::cout << "test1" << std::endl;
+        uv[1] = texcoords[id + 1];
+        // std::cout << "test1" << std::endl;
         return uv;
     }
 
@@ -130,11 +140,14 @@ public:
     }
 
     Vec2 getFaceTexcoord(const unsigned int FaceID, Vec2 barycentric) const {
+        // std::cout << "tex" << std::endl;
         VertexIndex index = this->getindices(FaceID);
+        // std::cout << "index" << index.idx1 << index.idx2 << index.idx3 << std::endl;
         Vec2 uv1 = getVertTexcoord(index.idx1);
+        // std::cout << "tex2" << std::endl;
         Vec2 uv2 = getVertTexcoord(index.idx2);
+        // std::cout << "tex2" << std::endl;
         Vec2 uv3 = getVertTexcoord(index.idx3);
-
         //重心座標系
         return uv1 * (1.0f - barycentric[0] - barycentric[1]) + uv2 * barycentric[0] + uv3 * barycentric[1];
     }

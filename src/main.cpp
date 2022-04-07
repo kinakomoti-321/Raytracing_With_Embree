@@ -19,11 +19,11 @@ int main()
     auto mat1 = std::make_shared<Lambert>(Vec3(1.0));
     Scene scene;
 
-    scene.addPolygon("../model/cornelBox.obj", mat1);
+    scene.addPolygon("../model/monkey.obj", mat1);
     scene.SceneBuild();
 
-    Vec3 cameraPos(0, 0, -3);
-    Vec3 cameraDir(0, 0, 1);
+    Vec3 cameraPos(0, 0, 2);
+    Vec3 cameraDir(0, 0, -1);
     PinholeCamera camera(cameraPos, cameraDir, 1.0f);
 
 
@@ -35,7 +35,7 @@ int main()
             Ray ray = camera.getCameraRay(u, v);
             Vec3 col;
             IntersectInfo info;
-            if (scene.Intersection(ray, info)) col = Vec3(1.0);
+            if (scene.Intersection(ray, info)) col = info.normal * 0.5 + Vec3(0.5);
 
             img.setPixel(i, j, col);
         }

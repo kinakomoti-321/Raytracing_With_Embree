@@ -72,7 +72,7 @@ bool loadObj(const std::string& filename, std::vector<float>& vertices,
                 uvs.push_back(ty);
 
                 //v番目のindex
-                indices.push_back(index_offset + f);
+                indices.push_back(index_offset + v);
             }
             index_offset += fv;
         }

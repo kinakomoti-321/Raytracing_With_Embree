@@ -64,21 +64,25 @@ public:
         rtcIntersect1(scene, &context, &ray);
 
 
-        if (ray.hit.geomID == RTC_INVALID_GEOMETRY_ID) return false;
+        if (ray.hit.geomID != RTC_INVALID_GEOMETRY_ID) {
+            // std::cout << "ray test " << ray.hit.primID << std::endl;
+            info.distance = ray.ray.tfar;
+            info.position = inray.post(info.distance);
+            info.FaceID = ray.hit.primID;
+            Vec2 bary = Vec2(ray.hit.u, ray.hit.v);
+            // std::cout << "ray normal" << std::endl;
+            info.normal = poly.getFaceNormal(info.FaceID, bary);
+            info.normal = poly.getFaceNormal(info.FaceID, bary);
+            // std::cout << "ray texcoord" << std::endl;
+            info.texcoord = poly.getFaceTexcoord(info.FaceID, bary);
+            // std::cout << "ray test1" << std::endl;
 
-        std::cout << "ray test " << ray.hit.geomID << std::endl;
-        info.distance = ray.ray.tfar;
-        info.position = inray.post(info.distance);
-        info.FaceID = ray.hit.primID;
-        Vec2 bary = Vec2(ray.hit.u, ray.hit.v);
-        std::cout << "ray normal" << std::endl;
-        info.normal = poly.getFaceNormal(info.FaceID, bary);
-        info.normal = poly.getFaceNormal(info.FaceID, bary);
-        std::cout << "ray texcoord" << std::endl;
-        info.texcoord = poly.getFaceTexcoord(info.FaceID, bary);
-        std::cout << "ray test1" << std::endl;
+            return true;
+        }
 
-        return true;
+        else {
+            return false;
+        }
     }
 
 };
