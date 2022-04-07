@@ -67,9 +67,9 @@ public:
 
         nPoly = indices.size() / 3;
 
-        std::cout << "vertex " << vertices << std::endl;
-        std::cout << "indice " << indices << std::endl;
-        std::cout << "normal " << normals << std::endl;
+        // std::cout << "vertex " << vertices << std::endl;
+        // std::cout << "indice " << indices << std::endl;
+        // std::cout << "normal " << normals << std::endl;
 
         std::cout << "model road " << filepath << " complete" << std::endl << "the number Polygon of this model is " << nPoly << std::endl;
         std::cout << std::endl << "-------------------" << std::endl;

@@ -19,12 +19,12 @@ int main()
     auto mat1 = std::make_shared<Lambert>(Vec3(1.0));
     Scene scene;
 
-    scene.addPolygon("../model/monkey.obj", mat1);
+    scene.addPolygon("../model/dragon.obj", mat1);
     scene.SceneBuild();
 
-    Vec3 cameraPos(0, 0, 2);
-    Vec3 cameraDir(0, 0, -1);
-    PinholeCamera camera(cameraPos, cameraDir, 1.0f);
+    Vec3 cameraPos(1, 0, 0);
+    Vec3 cameraDir(-1, 0, 0);
+    PinholeCamera camera(cameraPos, cameraDir, 2.0f);
 
 
     for (int j = 0; j < height; j++) {
