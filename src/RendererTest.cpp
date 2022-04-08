@@ -23,6 +23,7 @@ int main() {
     auto mat3 = std::make_shared<Lambert>(Vec3(0.2, 0.8, 0.2));
     auto mat4 = std::make_shared<Lambert>(Vec3(0.2, 0.2, 0.8));
 
+    auto lit1 = std::make_shared<Light>(Vec3(1.0));
 
     Vec3 cameraPos(0, 0, -3);
     Vec3 cameraDir = normalize(Vec3(0, 0, 0) - cameraPos);
@@ -38,6 +39,7 @@ int main() {
     scene.addPolygon("../model/cornel_L.obj", mat2);
     scene.addPolygon("../model/cornel_R.obj", mat3);
     scene.addPolygon("../model/cornelBox.obj", mat1);
+    scene.addPolygon("../model/Light.obj", mat1, lit1);
     // scene.addPolygon("../model/CornellBox-Empty-CO.obj", mat1);
     scene.SceneBuild();
 

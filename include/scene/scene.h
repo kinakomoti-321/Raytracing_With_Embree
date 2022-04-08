@@ -8,6 +8,7 @@
 #include "bsdf/bsdf.hpp"
 #include <string>
 #include <memory>
+#include "sky.hpp"
 
 class Scene {
 private:
@@ -16,6 +17,7 @@ private:
     RTCGeometry geom;
 
     Polygon poly;
+    Sky sky;
 public:
     Scene() {
         device = rtcNewDevice(NULL);
@@ -28,8 +30,12 @@ public:
         rtcReleaseDevice(device);
     }
 
-    void addPolygon(const std::string& filepath, std::shared_ptr<BSDF> bsdf) {
-        poly.AddPolygon(filepath, bsdf);
+    void addPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& bsdf, const std::shared_ptr<Light>& lit = nullptr) {
+        poly.AddPolygon(filepath, bsdf, lit);
+    }
+
+    void setSkySphere(const Vec3& le) {
+        sky = Sky(le);
     }
 
     void SceneBuild() {
@@ -61,6 +67,10 @@ public:
     }
     bool faceHasLight(unsigned int FaceID)const {
         return poly.hasLight(FaceID);
+    }
+
+    Vec3 getSkyLe(const Vec3& rayDir)const {
+        return sky.Le(rayDir);
     }
 
     bool Intersection(const Ray& inray, IntersectInfo& info)const {

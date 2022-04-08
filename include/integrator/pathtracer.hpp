@@ -28,12 +28,12 @@ public:
 
             IntersectInfo info;
             if (!scene.Intersection(next_ray, info)) {
-                LTE = throughput * Vec3(1.0);
+                LTE = throughput * scene.getSkyLe(next_ray.direction);
                 break;
             }
 
             if (scene.faceHasLight(info.FaceID)) {
-                LTE = throughput * Vec3(1.0);
+                LTE = throughput * scene.faceLight(info.FaceID)->le();
                 break;
             }
             Vec3 t, b;

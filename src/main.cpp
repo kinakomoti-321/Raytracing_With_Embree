@@ -17,6 +17,7 @@ int main()
     std::cout << "polygon" << std::endl;
 
     auto mat1 = std::make_shared<Lambert>(Vec3(1.0));
+    auto lit1 = std::make_shared<Light>(Vec3(1.0));
     Scene scene;
 
     scene.addPolygon("../model/dragon.obj", mat1);
