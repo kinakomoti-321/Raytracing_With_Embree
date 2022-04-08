@@ -187,7 +187,7 @@ inline Vec3 worldtoLocal(const Vec3& v, const Vec3& lx, const Vec3& ly, const Ve
 }
 inline void tangentSpaceBasis(const Vec3& n, Vec3& t, Vec3& b)
 {
-  if (abs(n[1]) < 0.9f)
+  if (std::abs(n[1]) < 0.9f)
   {
     t = cross(n, Vec3(0, 1, 0));
   }

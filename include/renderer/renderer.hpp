@@ -1,4 +1,5 @@
 #pragma once
+#include <omp.h>
 #include <iostream>
 #include <chrono>   
 #include <memory>
@@ -8,8 +9,10 @@
 #include "scene/scene.h"
 #include "core/ray.h"
 #include "sampling/sampler.hpp"
+#include "sampling/rng.hpp"
 #include "integrator/integrator.hpp"
 #include "camera/camera.hpp"
+
 class Renderer {
 private:
     unsigned int width, height;
@@ -47,14 +50,18 @@ public:
         std::cout << "Sample : " << sampling << std::endl;
 
         auto start = std::chrono::system_clock::now();
-
+#pragma omp parallel for schedule(dynamic,1)
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 Vec3 sumRadiance;
-                auto sampler = insampler->clone();
-                sampler->setSeed(j * width + i);
+                std::shared_ptr<Sampler> sampler = std::make_shared<RNGrandom>();
+                sampler->setSeed(i + j * width);
                 for (int k = 0; k < sampling; k++) {
-
+                    // std::cout << k << std::endl;
+                    // std::cout << sampler->getSample() << std::endl;
+                    // std::cout << sampler->getSample() << std::endl;
+                    // std::cout << sampler->getSample() << std::endl;
+                    // std::cout << sampler->getSample() << std::endl;
                     float u = (2.0f * (i + sampler->getSample() - 0.5f) - width) / height;
                     float v = (2.0f * (j + sampler->getSample() - 0.5f) - height) / height;
 

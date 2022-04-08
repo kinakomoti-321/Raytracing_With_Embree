@@ -10,6 +10,8 @@
 #include "sampling/rng.hpp"
 #include "scene/scene.h"
 #include "math/vec3.h"
+#include "integrator/testtrace.hpp"
+#include "integrator/rtao.hpp"
 #include <iostream>
 #include <memory>
 
@@ -17,9 +19,14 @@ int main() {
     const unsigned int width = 512, height = 512;
 
     auto mat1 = std::make_shared<Lambert>(Vec3(0.9f));
+    auto mat2 = std::make_shared<Lambert>(Vec3(0.8, 0.2, 0.2));
+    auto mat3 = std::make_shared<Lambert>(Vec3(0.2, 0.8, 0.2));
+    auto mat4 = std::make_shared<Lambert>(Vec3(0.2, 0.2, 0.8));
 
-    Vec3 cameraPos(1, 0, 0);
-    Vec3 cameraDir(-1, 0, 0);
+
+    Vec3 cameraPos(0, 0, -3);
+    Vec3 cameraDir = normalize(Vec3(0, 0, 0) - cameraPos);
+
 
     auto camera = std::make_shared<PinholeCamera>(cameraPos, cameraDir, 2.0f);
 
@@ -28,10 +35,14 @@ int main() {
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
     scene.addPolygon("../model/dragon.obj", mat1);
+    scene.addPolygon("../model/cornel_L.obj", mat2);
+    scene.addPolygon("../model/cornel_R.obj", mat3);
+    scene.addPolygon("../model/cornelBox.obj", mat1);
+    // scene.addPolygon("../model/CornellBox-Empty-CO.obj", mat1);
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 100);
+    renderer.rendererSet(width, height, integrator, camera, 1000);
     renderer.Render(scene, "NormalCheck", sampler);
     return 0;
 }

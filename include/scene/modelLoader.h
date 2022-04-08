@@ -35,16 +35,15 @@ bool loadObj(const std::string& filename, std::vector<float>& vertices,
     const auto& attrib = reader.GetAttrib();
     const auto& shapes = reader.GetShapes();
 
+    size_t index_offset_ = 0;
     //シェイプ数分のループ
     for (size_t s = 0; s < shapes.size(); s++) {
-
         size_t index_offset = 0;
         //シェイプのフェイス分のループ
         for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
             //シェイプsの面fに含まれる頂点数
             size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
             Vec3 nv[3];
-
             for (size_t v = 0; v < fv; v++) {
                 tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
                 //シェイプのv番目の頂点座標
@@ -84,7 +83,7 @@ bool loadObj(const std::string& filename, std::vector<float>& vertices,
                     uvs.push_back(0);
                 }
                 //v番目のindex
-                indices.push_back(index_offset + v);
+                indices.push_back(index_offset_ + index_offset + v);
             }
 
             if (attrib.normals.size() == 0) {
@@ -103,6 +102,7 @@ bool loadObj(const std::string& filename, std::vector<float>& vertices,
             }
             index_offset += fv;
         }
+        index_offset_ += index_offset;
     }
     std::cout << std::endl << "...model information" << std::endl;
     std::cout << "the number of vertex : " << vertices.size() / 3 << std::endl;
