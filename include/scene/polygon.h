@@ -19,6 +19,7 @@ private:
     std::vector<float> texcoords;
     std::vector<std::shared_ptr<BSDF>> material;
     std::vector<std::shared_ptr<Light>> light;
+    std::vector<unsigned int> lightFaceID;
 
     unsigned int nPoly;
 
@@ -43,9 +44,6 @@ public:
         unsigned int nowvert = vertices.size() / 3; //現在のverticesの数
 
         for (int i = 0; i < nvert; i++) {
-            // std::cout << "vertex : " << i << std::endl;
-            // std::cout << "vertex : " << vert[i] << std::endl;
-            // std::cout << "normal : " << nor[i] << std::endl;
             vertices.push_back(vert[i]);
             normals.push_back(nor[i]);
         }
@@ -65,14 +63,15 @@ public:
         for (int i = 0; i < index.size() / 3; i++) {
             material.push_back(mat);
             light.push_back(lit);
+            if (lit != nullptr)lightFaceID.push_back(nPoly + i);
         }
         std::cout << "material loaded" << std::endl;
 
+        std::cout << std::endl << "FaceID : " << nPoly - 1 << " ~ ";
         nPoly = indices.size() / 3;
+        std::cout << nPoly << std::endl;
 
-        // std::cout << "vertex " << vertices << std::endl;
-        // std::cout << "indice " << indices << std::endl;
-        // std::cout << "normal " << normals << std::endl;
+        std::cout << lightFaceID << std::endl;
 
         std::cout << "model road " << filepath << " complete" << std::endl << "the number Polygon of this model is " << nPoly << std::endl;
         std::cout << std::endl << "-------------------" << std::endl;
@@ -103,7 +102,7 @@ public:
         return index;
     }
 
-    Vec3 getvertices(unsigned int index) const {
+    Vec3 getvertex(unsigned int index) const {
         Vec3 vert;
         unsigned int id = index * 3;
         vert[0] = vertices[id + 0];
@@ -153,6 +152,56 @@ public:
         Vec2 uv3 = getVertTexcoord(index.idx3);
         //重心座標系
         return uv1 * (1.0f - barycentric[0] - barycentric[1]) + uv2 * barycentric[0] + uv3 * barycentric[1];
+    }
+
+    float getTriangleArea(unsigned int FaceID)const {
+        VertexIndex index = this->getindices(FaceID);
+        Vec3 v1 = getvertex(index.idx1);
+        Vec3 v2 = getvertex(index.idx2);
+        Vec3 v3 = getvertex(index.idx3);
+
+        Vec3 va1 = v2 - v1;
+        Vec3 va2 = v3 - v1;
+
+        return norm(cross(va1, va2)) / 2;
+    }
+
+    void sampleLightPoint(float& pdf, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info)const {
+        int nlit = lightFaceID.size();
+        unsigned int lightID = nlit * sampler->getSample();
+        if (lightID == nlit) lightID--;
+
+        unsigned int faceID = lightFaceID[lightID];
+        pdf = 1.0f / (getTriangleArea(faceID) * nlit);
+
+        areaSampling(faceID, sampler, info);
+        info.FaceID = faceID;
+    }
+
+    void areaSampling(unsigned int FaceID, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info)const {
+        VertexIndex index = getindices(FaceID);
+        Vec3 v1 = getvertex(index.idx1);
+        Vec3 v2 = getvertex(index.idx2);
+        Vec3 v3 = getvertex(index.idx3);
+
+        Vec3 n1 = getVertnormal(index.idx1);
+        Vec3 n2 = getVertnormal(index.idx2);
+        Vec3 n3 = getVertnormal(index.idx3);
+
+        Vec2 uv1 = getVertTexcoord(index.idx1);
+        Vec2 uv2 = getVertTexcoord(index.idx2);
+        Vec2 uv3 = getVertTexcoord(index.idx3);
+
+        float u = sampler->getSample();
+        float v = sampler->getSample();
+
+        float f1 = 1.0f - std::sqrt(u);
+        float f2 = std::sqrt(u) * (1.0f - v);
+        float f3 = std::sqrt(u) * v;
+
+        info.position = v1 * f1 + v2 * f2 + v3 * f3;
+        info.normal = n1 * f1 + n2 * f2 + n3 * f3;
+        info.texcoord = uv1 * f1 + uv2 * f2 + uv3 * f3;
     }
 
     std::shared_ptr<BSDF> getMaterial(unsigned int FaceID)const {

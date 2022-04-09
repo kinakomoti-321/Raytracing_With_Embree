@@ -48,6 +48,7 @@ public:
         std::cout << "Camera Type : " << camera->getCameraType() << std::endl;
         std::cout << "Image Width : " << width << " , Image Height : " << height << std::endl;
         std::cout << "Sample : " << sampling << std::endl;
+        std::cout << "FileName : " << filename << std::endl;
 
         auto start = std::chrono::system_clock::now();
 #pragma omp parallel for schedule(dynamic,1)

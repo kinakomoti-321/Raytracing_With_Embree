@@ -12,7 +12,7 @@
 #include "bsdf/specular.hpp"
 int main()
 {
-    const unsigned int width = 512, height = 512;
+    const unsigned int width = 512 * 2, height = 512 * 2;
     Image img(width, height);
 
     std::cout << "polygon" << std::endl;

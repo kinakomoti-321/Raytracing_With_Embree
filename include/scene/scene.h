@@ -72,6 +72,9 @@ public:
     Vec3 getSkyLe(const Vec3& rayDir)const {
         return sky.Le(rayDir);
     }
+    void lightPointSampling(float& pdf, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info)const {
+        poly.sampleLightPoint(pdf, sampler, info);
+    }
 
     bool Intersection(const Ray& inray, IntersectInfo& info)const {
         RTCRayHit ray = inray.RayConvertRTCRayHit();

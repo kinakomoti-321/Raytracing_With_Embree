@@ -33,7 +33,7 @@ public:
     Glass(const Vec3& rho, const float& ior) :rho(rho), ior(ior) {};
 
     Vec3 samplingBSDF(const Vec3& wo, Vec3& wi, float& pdf,
-        std::shared_ptr<Sampler>& sampler)const override {
+        std::shared_ptr<Sampler>& sampler)const {
         float ior1, ior2;
         Vec3 n;
         if (wo[1] > 0) {
@@ -76,4 +76,7 @@ public:
     float samplePDF(const Vec3& wo, const Vec3& wi)const override {
         return 0;
     };
+    std::string getBSDFname()const {
+        return "GLASS";
+    }
 };
