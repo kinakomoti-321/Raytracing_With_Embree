@@ -9,6 +9,7 @@
 #include "math/vec2.h"
 #include "core/constant.hpp"
 #include "bsdf/light.hpp"
+#include "volume/volume.hpp"
 #include <embree3/rtcore.h>
 
 class Polygon {
@@ -20,6 +21,7 @@ private:
     std::vector<std::shared_ptr<BSDF>> material;
     std::vector<std::shared_ptr<Light>> light;
     std::vector<unsigned int> lightFaceID;
+    std::vector<std::shared_ptr<Volume>> volume;
 
     unsigned int nPoly;
 
@@ -28,7 +30,7 @@ public:
         nPoly = 0;
     }
 
-    void AddPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& mat, const std::shared_ptr<Light>& lit = nullptr) {
+    void AddPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& mat, const std::shared_ptr<Light>& lit = nullptr, const std::shared_ptr<Volume>& vol = nullptr) {
         std::vector<float> vert;
         std::vector<unsigned int> index;
         std::vector<float> nor;
@@ -63,6 +65,7 @@ public:
         for (int i = 0; i < index.size() / 3; i++) {
             material.push_back(mat);
             light.push_back(lit);
+            volume.push_back(vol);
             if (lit != nullptr)lightFaceID.push_back(nPoly + i);
         }
         std::cout << "material loaded" << std::endl;
@@ -213,6 +216,9 @@ public:
     }
     std::shared_ptr<Light> getLight(unsigned int FaceID)const {
         return light[FaceID];
+    }
+    std::shared_ptr<Volume> getVolume(unsigned int FaceID)const {
+        return volume[FaceID];
     }
     bool hasLight(unsigned int FaceID)const {
         return light[FaceID] != nullptr;

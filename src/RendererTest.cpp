@@ -17,6 +17,8 @@
 #include "bsdf/ggx.hpp"
 #include "integrator/nee.hpp"
 #include "integrator/mis.hpp"
+#include "volume/volume.hpp"
+#include "integrator/volume_homo_renderer.hpp"
 #include <iostream>
 #include <memory>
 
@@ -29,7 +31,7 @@ int main() {
     auto mat4 = std::make_shared<Lambert>(Vec3(0.2, 0.2, 0.8));
     auto mat5 = std::make_shared<Specular>(Vec3(0.9));
     auto mat6 = std::make_shared<Glass>(Vec3(0.9), 1.4);
-    auto mat7 = std::make_shared<GGX_VisibleNormal>(Vec3(0.9), 0.3, 0.3);
+    auto mat7 = std::make_shared<GGX_VisibleNormal>(Vec3(0.9), 0.1, 0.1);
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
@@ -40,10 +42,15 @@ int main() {
     auto camera = std::make_shared<PinholeCamera>(cameraPos, cameraDir, 2.0f);
 
     auto integrator = std::make_shared<MIS>();
+    auto integrator1 = std::make_shared<NEE>();
+    auto integrator2 = std::make_shared<PathTracer>();
+    auto integrator3 = std::make_shared<Volume_homo_render>();
+
+    auto vol = std::make_shared<HomoVolume>(10.0, 10.0, -0.8, Vec3(0));
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
-    scene.addPolygon("../model/dragon.obj", mat6);
+    scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
     scene.addPolygon("../model/cornel_L.obj", mat2);
     scene.addPolygon("../model/cornel_R.obj", mat3);
     scene.addPolygon("../model/cornelBox.obj", mat1);
@@ -52,7 +59,7 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 100);
-    renderer.Render(scene, "MIS_GGX", sampler);
+    renderer.rendererSet(width, height, integrator3, camera, 1000);
+    renderer.Render(scene, "VolumeTest", sampler);
     return 0;
 }

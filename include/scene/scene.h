@@ -30,8 +30,8 @@ public:
         rtcReleaseDevice(device);
     }
 
-    void addPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& bsdf, const std::shared_ptr<Light>& lit = nullptr) {
-        poly.AddPolygon(filepath, bsdf, lit);
+    void addPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& bsdf, const std::shared_ptr<Light>& lit = nullptr, const std::shared_ptr<Volume>& vol = nullptr) {
+        poly.AddPolygon(filepath, bsdf, lit, vol);
     }
 
     void setSkySphere(const Vec3& le) {
@@ -65,8 +65,16 @@ public:
     std::shared_ptr<Light> faceLight(unsigned int FaceID)const {
         return poly.getLight(FaceID);
     }
+
+    std::shared_ptr<Volume> faceVolume(unsigned int FaceID)const {
+        return poly.getVolume(FaceID);
+    }
+
     bool faceHasLight(unsigned int FaceID)const {
         return poly.hasLight(FaceID);
+    }
+    bool faceHasVolume(unsigned int FaceID)const {
+        return faceVolume(FaceID) != nullptr;
     }
 
     Vec3 getSkyLe(const Vec3& rayDir)const {
