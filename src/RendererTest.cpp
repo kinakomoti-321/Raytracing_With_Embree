@@ -17,6 +17,7 @@
 #include "bsdf/ggx.hpp"
 #include "integrator/nee.hpp"
 #include "integrator/mis.hpp"
+#include "integrator/uvchecker.hpp"
 #include "volume/volume.hpp"
 #include "integrator/volume_homo_renderer.hpp"
 #include <iostream>
@@ -45,12 +46,14 @@ int main() {
     auto integrator1 = std::make_shared<NEE>();
     auto integrator2 = std::make_shared<PathTracer>();
     auto integrator3 = std::make_shared<Volume_homo_render>();
+    auto integrator4 = std::make_shared<UVChecker>();
 
     auto vol = std::make_shared<HomoVolume>(10.0, 10.0, -0.8, Vec3(0));
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
-    scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
+    // scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
+    scene.addPolygon("../model/UVpannel.obj", mat1);
     scene.addPolygon("../model/cornel_L.obj", mat2);
     scene.addPolygon("../model/cornel_R.obj", mat3);
     scene.addPolygon("../model/cornelBox.obj", mat1);
@@ -59,7 +62,7 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator3, camera, 1000);
+    renderer.rendererSet(width, height, integrator4, camera, 1);
     renderer.Render(scene, "VolumeTest", sampler);
     return 0;
 }
