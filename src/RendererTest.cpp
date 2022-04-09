@@ -16,6 +16,7 @@
 #include "bsdf/glass.hpp"
 #include "bsdf/ggx.hpp"
 #include "integrator/nee.hpp"
+#include "integrator/mis.hpp"
 #include <iostream>
 #include <memory>
 
@@ -27,8 +28,8 @@ int main() {
     auto mat3 = std::make_shared<Lambert>(Vec3(0.2, 0.8, 0.2));
     auto mat4 = std::make_shared<Lambert>(Vec3(0.2, 0.2, 0.8));
     auto mat5 = std::make_shared<Specular>(Vec3(0.9));
-    auto mat6 = std::make_shared<Glass>(Vec3(0.9), 1.33);
-    auto mat7 = std::make_shared<GGX_VisibleNormal>(Vec3(0.9), 0.1, 0.9);
+    auto mat6 = std::make_shared<Glass>(Vec3(0.9), 1.4);
+    auto mat7 = std::make_shared<GGX_VisibleNormal>(Vec3(0.9), 0.3, 0.3);
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
@@ -38,11 +39,11 @@ int main() {
 
     auto camera = std::make_shared<PinholeCamera>(cameraPos, cameraDir, 2.0f);
 
-    auto integrator = std::make_shared<NEE>();
+    auto integrator = std::make_shared<MIS>();
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
-    scene.addPolygon("../model/dragon.obj", mat1);
+    scene.addPolygon("../model/dragon.obj", mat6);
     scene.addPolygon("../model/cornel_L.obj", mat2);
     scene.addPolygon("../model/cornel_R.obj", mat3);
     scene.addPolygon("../model/cornelBox.obj", mat1);
@@ -51,7 +52,7 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 10);
-    renderer.Render(scene, "Reference", sampler);
+    renderer.rendererSet(width, height, integrator, camera, 100);
+    renderer.Render(scene, "MIS_GGX", sampler);
     return 0;
 }

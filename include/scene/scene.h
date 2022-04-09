@@ -76,6 +76,10 @@ public:
         poly.sampleLightPoint(pdf, sampler, info);
     }
 
+    float lightPointPDF(unsigned int FaceID, Vec3 lightPos) const {
+        return poly.lightPointPDF(FaceID, lightPos);
+    }
+
     bool Intersection(const Ray& inray, IntersectInfo& info)const {
         RTCRayHit ray = inray.RayConvertRTCRayHit();
         RTCIntersectContext context;

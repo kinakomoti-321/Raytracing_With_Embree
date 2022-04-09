@@ -67,9 +67,9 @@ public:
         }
         std::cout << "material loaded" << std::endl;
 
-        std::cout << std::endl << "FaceID : " << nPoly - 1 << " ~ ";
+        std::cout << std::endl << "FaceID : " << nPoly << " ~ ";
         nPoly = indices.size() / 3;
-        std::cout << nPoly << std::endl;
+        std::cout << nPoly - 1 << std::endl;
 
         std::cout << lightFaceID << std::endl;
 
@@ -163,7 +163,7 @@ public:
         Vec3 va1 = v2 - v1;
         Vec3 va2 = v3 - v1;
 
-        return norm(cross(va1, va2)) / 2;
+        return std::abs(norm(cross(va1, va2))) / 2.0f;
     }
 
     void sampleLightPoint(float& pdf, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info)const {
@@ -172,10 +172,14 @@ public:
         if (lightID == nlit) lightID--;
 
         unsigned int faceID = lightFaceID[lightID];
-        pdf = 1.0f / (getTriangleArea(faceID) * nlit);
+        pdf = 1.0f / static_cast<float>(getTriangleArea(faceID) * nlit);
 
         areaSampling(faceID, sampler, info);
         info.FaceID = faceID;
+    }
+
+    float lightPointPDF(unsigned int FaceID, const Vec3& lightPos) const {
+        return 1.0f / static_cast<float>(getTriangleArea(FaceID) * lightFaceID.size());
     }
 
     void areaSampling(unsigned int FaceID, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info)const {
