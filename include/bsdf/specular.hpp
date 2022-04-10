@@ -23,4 +23,6 @@ public:
         return 0;
     }
     std::string getBSDFname()const override { return "Speculer"; }
+    void textureUVSet(const Vec2& uv) {
+    }
 };

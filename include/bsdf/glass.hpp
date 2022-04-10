@@ -5,6 +5,7 @@
 #include "bsdf/bsdf.hpp"
 #include "math/vec3.h"
 #include "bsdf/specular.hpp"
+#include "image/texture.h"
 
 inline bool refract(const Vec3& v, const Vec3& n, float ior1, float ior2,
     Vec3& r) {
@@ -28,9 +29,16 @@ class Glass : public BSDF {
 private:
     Vec3 rho;
     float ior;
+    std::shared_ptr<Texture> tex1;
 
 public:
-    Glass(const Vec3& rho, const float& ior) :rho(rho), ior(ior) {};
+    Glass(const Vec3& rho, const float& ior) :rho(rho), ior(ior) {
+        tex1 = std::make_shared<Texture>(rho);
+    };
+
+    void textureUVSet(const Vec2& uv) {
+        rho = tex1->getTex(uv[0], uv[1]);
+    }
 
     Vec3 samplingBSDF(const Vec3& wo, Vec3& wi, float& pdf,
         std::shared_ptr<Sampler>& sampler)const {

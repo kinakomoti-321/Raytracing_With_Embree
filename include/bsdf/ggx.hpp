@@ -108,6 +108,8 @@ public:
     std::string getBSDFname()const {
         return "GGX";
     }
+    void textureUVSet(const Vec2& uv) {
+    }
 };
 
 class GGX_anistropic :public BSDF {
@@ -232,6 +234,8 @@ public:
 
     std::string getBSDFname() {
         return "GGX_anisotropic";
+    }
+    void textureUVSet(const Vec2& uv) {
     }
 };
 
@@ -363,5 +367,8 @@ public:
 
     std::string getBSDFname()const {
         return "GGX_VisibleNormal";
+    }
+
+    void textureUVSet(const Vec2& uv) {
     }
 };

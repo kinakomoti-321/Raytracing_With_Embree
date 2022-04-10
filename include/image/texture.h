@@ -2,18 +2,27 @@
 #define TEXTURE_H
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "ImageLoader.hpp"
+#include "../external/stb/stb_image.h"
 #include <string>
-#include "../vec3.h"
+#include "math/vec3.h"
 #include <iostream>
-#include "../image.h"
+#include "image.h"
+#include <memory>
+#include <cmath>
+#include <algorithm>
+
 using namespace std;
+
 class Texture
 {
 public:
-    Image* image;
+    std::shared_ptr<Image> image;
     string name;
 
+    Texture(const Vec3& col) {
+        image = std::make_shared<Image>(1, 1);
+        image->setPixel(0, 0, col);
+    }
     Texture(const string& filename)
     {
         cout << "Texture Loading :" << filename << endl;
@@ -21,10 +30,11 @@ public:
         unsigned char* img = stbi_load(filename.c_str(), &width, &height, &channels, 3);
         if (img == NULL)
         {
-            cerr << "テクスチャの読み込みに失敗しました" << endl;
-            exit(EXIT_FAILURE);
+            cout << "Texture " << filename << " Load Failed" << endl;
+            image = make_shared<Image>(1, 1);
+            return;
         }
-        image = new Image(width, height);
+        image = std::make_shared<Image>(width, height);
 
         for (int j = 0; j < width; j++)
         {
@@ -35,22 +45,17 @@ public:
                 const float R = img[3 * j + 3 * width * i] * divider;
                 const float G = img[3 * j + 3 * width * i + 1] * divider;
                 const float B = img[3 * j + 3 * width * i + 2] * divider;
-                // cout << R << " " << G << " " << B << endl;
-                image->SetPixel(i, j, vec3f(R, G, B));
+                image->setPixel(i, j, Vec3(R, G, B));
             }
         }
 
         name = filename;
     }
-    ~Texture()
-    {
-        delete image;
-    }
 
-    vec3f getTex(float u, float v)
+    Vec3 getTex(float u, float v)
     {
-        if (u > 1 || u < 0 || v > 1 || v < 0)
-            cout << "uv error: not normalized uv" << endl;
+        u = std::clamp(std::fmod(u, 1.0f), 0.0f, 1.0f);
+        v = std::clamp(std::fmod(v, 1.0f), 0.0f, 1.0f);
 
         unsigned int u1 = floor(u * image->getWidth());
         unsigned int v1 = floor(v * image->getHeight());
@@ -61,7 +66,7 @@ public:
 class WorldTexture
 {
 public:
-    Image* image;
+    std::shared_ptr<Image> image;
     string name;
 
     WorldTexture(const string& filename)
@@ -71,54 +76,37 @@ public:
         float* img = stbi_loadf(filename.c_str(), &width, &height, &channels, 0);
         if (img == NULL)
         {
-            cerr << "テクスチャの読み込みに失敗しました" << endl;
-            exit(EXIT_FAILURE);
+            cout << "Texture " << filename << " Load Failed" << endl;
+            image = std::make_shared<Image>(1, 1);
+            return;
         }
-        image = new Image(width, height);
+        image = std::make_shared<Image>(width, height);
         cout << width << " " << height << endl;
         cout << "Texture loading" << endl;
-        // for (int i = 0; i < width * height * 5; i += 10)
-        // {
-        //     cout << i << endl;
-        // }
-        // cout << "end" << endl;
 
         for (int j = 0; j < width; j++)
         {
             for (int i = 0; i < height; i++)
             {
-                // cout << i << " " << j << endl;
                 int index = 3 * j + 3 * width * i;
-                // cout << index << endl;
 
                 constexpr float divider = 1.0f / 255.0f;
                 const float R = img[3 * j + 3 * width * i];
                 const float G = img[3 * j + 3 * width * i + 1];
                 const float B = img[3 * j + 3 * width * i + 2];
-                // cout << R << " " << G << " " << B << endl;
-                image->SetPixel(j, i, vec3f(R, G, B));
-                // cout << "test" << endl;
+                image->setPixel(j, i, Vec3(R, G, B));
             }
         }
-        cout << "texture complete" << endl;
+        cout << "Texture " << filename << " Load Finished" << endl;
         name = filename;
     }
-    ~WorldTexture()
-    {
-        delete image;
-    }
 
-    vec3f getTex(float u, float v)
+    Vec3 getTex(float u, float v)
     {
-        if (u > 1 || u < 0 || v > 1 || v < 0)
-        {
-            cout << "uv error: not normalized uv" << endl;
-            cout << u << " " << v << endl;
-            return vec3f(0.0);
-        }
-
-        unsigned int u1 = floor(u * (image->getWidth() - 1));
-        unsigned int v1 = floor(v * (image->getHeight() - 1));
+        u = std::clamp(std::fmod(u, 1.0f), 0.0f, 1.0f);
+        v = std::clamp(std::fmod(v, 1.0f), 0.0f, 1.0f);
+        unsigned int u1 = floor(u * image->getWidth());
+        unsigned int v1 = floor(v * image->getHeight());
         return image->getPixel(u1, v1);
     }
 };
