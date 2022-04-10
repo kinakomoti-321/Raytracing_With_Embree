@@ -12,6 +12,8 @@ class GGX :public BSDF {
 private:
     Vec3 F0;
     float alpha;
+    std::shared_ptr<Texture> tex1;
+    std::shared_ptr<Texture> tex2;
 
     Vec3 Fresnel(const float im) const {
         float delta = std::max(1.0f - im, 0.0f);
@@ -20,6 +22,13 @@ private:
 public:
     GGX(const Vec3& F0, const float roughness) :F0(F0) {
         alpha = std::clamp(roughness * roughness, 0.01f, 1.0f);
+        tex1 = std::make_shared<Texture>(F0);
+        tex2 = std::make_shared<Texture>(Vec3(roughness));
+    }
+    void textureUVSet(const Vec2& uv) {
+        float delta = tex2->getTex(uv[0], uv[1])[0];
+        alpha = std::clamp(delta * delta, 0.01f, 1.0f);
+        F0 = tex1->getTex(uv[0], uv[1]);
     }
 
     float G(const Vec3& v, const Vec3& m)const {
@@ -118,6 +127,12 @@ private:
     Vec3 F0;
     float a_x;
     float a_y;
+    float rotateTangent;
+
+    std::shared_ptr<Texture> F0Tex;
+    std::shared_ptr<Texture> roughnessTex;
+    std::shared_ptr<Texture> anisotoropicTex;
+    std::shared_ptr<Texture> rotateTanTex;
 
     Vec3 Fresnel(const float im) const {
         float delta = std::max(1.0f - im, 0.0f);
@@ -127,9 +142,33 @@ private:
 
 
 public:
-    GGX_anistropic(const Vec3& F0, const float ax, const float ay) :F0(F0) {
-        a_x = std::clamp(ax * ax, 0.001f, 1.0f);
-        a_y = std::clamp(ay * ay, 0.001f, 1.0f);
+    GGX_anistropic(const Vec3& F0, const float Roughness, const float Anisotropic, const float rotateTan) :F0(F0) {
+        float aspect = std::sqrt(1.0 - Anisotropic * 0.9);
+        float r2 = Roughness * Roughness;
+        a_x = r2 / aspect;
+        a_y = r2 * aspect;
+        rotateTangent = rotateTan;
+        F0Tex = std::make_shared<Texture>(F0);
+        roughnessTex = std::make_shared<Texture>(Vec3(Roughness));
+        anisotoropicTex = std::make_shared<Texture>(Vec3(Anisotropic));
+        rotateTanTex = std::make_shared<Texture>(rotateTan);
+    }
+
+    GGX_anistropic(const std::shared_ptr<Texture>& tex1, const std::shared_ptr<Texture>& tex2, const std::shared_ptr<Texture>& tex3, const std::shared_ptr<Texture>& tex4) {
+        F0Tex = tex1;
+        roughnessTex = tex2;
+        anisotoropicTex = tex3;
+        rotateTanTex = tex4;
+    }
+
+    void textureUVSet(const Vec2& uv) {
+        F0 = F0Tex->getTex(uv[0], uv[1]);
+        float aspect = std::sqrt(1.0 - anisotoropicTex->getTex(uv[0], uv[1])[0] * 0.9);
+        float Roughness = roughnessTex->getTex(uv[0], uv[1])[0];
+        float r2 = Roughness * Roughness;
+        a_x = r2 / aspect;
+        a_y = r2 * aspect;
+        rotateTangent = rotateTanTex->getTex(uv[0], uv[1])[0];
     }
 
     float D(const Vec3& m) const {
@@ -181,15 +220,17 @@ public:
     Vec3 samplingBSDF(const Vec3& wo, Vec3& wi, float& pdf,
         std::shared_ptr<Sampler>& sampler) const override {
 
-        Vec3 i = wo;
         Vec3 n = Vec3(0.0, 1.0, 0.0);
+        Vec3 b(std::cos(rotateTangent), 0, std::sin(rotateTangent));
+        Vec3 t(-std::sin(rotateTangent), 0, std::cos(rotateTangent));
+        Vec3 rtan = worldtoLocal(wo, b, n, t);
+
+        Vec3 i = rtan;
+
         Vec3 m = this->samplem(sampler->getSample(), sampler->getSample());
         Vec3 o = reflect(wo, m);
-        wi = o;
+        wi = localToWorld(o, b, n, t);
         if (wi[1] < 0.0f) return Vec3(0.0);
-
-        // DebugLog("o", o);
-        // DebugLog("m", m);
 
         float im = absdot(i, m);
         float in = absdot(i, n);
@@ -245,16 +286,45 @@ private:
     Vec3 F0;
     float a_x;
     float a_y;
+    float rotateTangent;
 
+    std::shared_ptr<Texture> F0Tex;
+    std::shared_ptr<Texture> roughnessTex;
+    std::shared_ptr<Texture> anisotoropicTex;
+    std::shared_ptr<Texture> rotateTanTex;
     Vec3 Fresnel(const float im) const {
         float delta = std::max(1.0f - im, 0.0f);
         return F0 + (Vec3(1.0f) - F0) * std::pow(delta, 5);
     }
 
 public:
-    GGX_VisibleNormal(const Vec3& F0, const float ax, const float ay) :F0(F0) {
-        a_x = std::clamp(ax * ax, 0.001f, 1.0f);
-        a_y = std::clamp(ay * ay, 0.001f, 1.0f);
+    GGX_VisibleNormal(const Vec3& F0, const float Roughness, const float Anisotropic, const float rotateTan) :F0(F0) {
+        float aspect = std::sqrt(1.0 - Anisotropic * 0.9);
+        float r2 = Roughness * Roughness;
+        a_x = r2 / aspect;
+        a_y = r2 * aspect;
+        rotateTangent = rotateTan;
+        F0Tex = std::make_shared<Texture>(F0);
+        roughnessTex = std::make_shared<Texture>(Vec3(Roughness));
+        anisotoropicTex = std::make_shared<Texture>(Vec3(Anisotropic));
+        rotateTanTex = std::make_shared<Texture>(rotateTan);
+    }
+
+    GGX_VisibleNormal(const std::shared_ptr<Texture>& tex1, const std::shared_ptr<Texture>& tex2, const std::shared_ptr<Texture>& tex3, const std::shared_ptr<Texture>& tex4) {
+        F0Tex = tex1;
+        roughnessTex = tex2;
+        anisotoropicTex = tex3;
+        rotateTanTex = tex4;
+    }
+
+    void textureUVSet(const Vec2& uv) {
+        F0 = F0Tex->getTex(uv[0], uv[1]);
+        float aspect = std::sqrt(1.0 - anisotoropicTex->getTex(uv[0], uv[1])[0] * 0.9);
+        float Roughness = roughnessTex->getTex(uv[0], uv[1])[0];
+        float r2 = Roughness * Roughness;
+        a_x = r2 / aspect;
+        a_y = r2 * aspect;
+        rotateTangent = rotateTanTex->getTex(uv[0], uv[1])[0];
     }
 
     float D(const Vec3& m) const {
