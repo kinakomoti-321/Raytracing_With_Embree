@@ -48,7 +48,6 @@ public:
             Vec3 bsdf;
             auto mat = scene.faceMaterial(info.FaceID);
             auto material = mat->getBSDF(info.texcoord);
-            material->textureUVSet(info.texcoord);
 
             //NEE
             {

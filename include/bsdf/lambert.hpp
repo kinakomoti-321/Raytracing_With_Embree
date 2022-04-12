@@ -28,22 +28,8 @@ inline Vec3 SphereSampling(float u, float v, float& pdf) {
 class Lambert : public BSDF {
 private:
     Vec3 rho;
-    std::shared_ptr<Texture> tex1;
 public:
-    Lambert(const Vec3& rho) : rho(rho) {
-        tex1 = std::make_shared<Texture>(rho);
-    }
-    Lambert(const std::shared_ptr<Texture>& tex) {
-        rho = Vec3(1.0);
-        tex1 = tex;
-    }
-
-    void textureUVSet(const Vec2& uv) {
-        rho = tex1->getTex(uv[0], uv[1]);
-        // std::cout << uv << std::endl;
-        // rho = Vec3(uv[0], uv[1], 0.0);
-        // std::cout << rho << std::endl;
-    }
+    Lambert(const Vec3& rho) : rho(rho) {}
 
     Vec3 samplingBSDF(const Vec3& wo, Vec3& wi, float& pdf, std::shared_ptr<Sampler>& sampler) const override {
         wi = cosineSampling(sampler->getSample(), sampler->getSample(), pdf);

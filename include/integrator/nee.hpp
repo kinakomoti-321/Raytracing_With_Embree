@@ -42,8 +42,6 @@ class NEE : public Integrator {
 
             auto mat = scene.faceMaterial(info.FaceID);
             auto material = mat->getBSDF(info.texcoord);
-            material->textureUVSet(info.texcoord);
-
             // std::cout << "Test!" << std::endl;
             //光源サンプリング
             IntersectInfo lightInfo;

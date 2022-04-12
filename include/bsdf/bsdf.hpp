@@ -11,7 +11,6 @@ public:
     virtual Vec3 evaluateBSDF(const Vec3& wo, const Vec3& wi)const = 0;
     virtual float samplePDF(const Vec3& wo, const Vec3& wi)const = 0;
     virtual std::string getBSDFname()const = 0;
-    virtual void textureUVSet(const Vec2& uv) = 0;
 };
 
 namespace BSDFMath {
