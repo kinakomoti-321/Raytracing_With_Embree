@@ -1,7 +1,7 @@
 #pragma once 
 #include "modelLoader.h"
 #include <vector>
-#include "bsdf/bsdf.hpp"
+#include "bsdf/material.hpp"
 #include <string>
 #include <memory>
 #include <iostream>
@@ -18,7 +18,7 @@ private:
     std::vector<unsigned int> indices;
     std::vector<float> normals;
     std::vector<float> texcoords;
-    std::vector<std::shared_ptr<BSDF>> material;
+    std::vector<std::shared_ptr<Material>> material;
     std::vector<std::shared_ptr<Light>> light;
     std::vector<unsigned int> lightFaceID;
     std::vector<std::shared_ptr<Volume>> volume;
@@ -30,7 +30,7 @@ public:
         nPoly = 0;
     }
 
-    void AddPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& mat, const std::shared_ptr<Light>& lit = nullptr, const std::shared_ptr<Volume>& vol = nullptr) {
+    void AddPolygon(const std::string& filepath, const std::shared_ptr<Material>& mat, const std::shared_ptr<Light>& lit = nullptr, const std::shared_ptr<Volume>& vol = nullptr) {
         std::vector<float> vert;
         std::vector<unsigned int> index;
         std::vector<float> nor;
@@ -211,7 +211,7 @@ public:
         info.texcoord = uv1 * f1 + uv2 * f2 + uv3 * f3;
     }
 
-    std::shared_ptr<BSDF> getMaterial(unsigned int FaceID)const {
+    std::shared_ptr<Material> getMaterial(unsigned int FaceID)const {
         return material[FaceID];
     }
     std::shared_ptr<Light> getLight(unsigned int FaceID)const {

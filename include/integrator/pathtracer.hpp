@@ -44,8 +44,10 @@ public:
             Vec3 bsdf;
 
             // BSDF計算
-            auto inbsdf = scene.faceMaterial(info.FaceID);
-            inbsdf->textureUVSet(info.texcoord);
+            auto material = scene.faceMaterial(info.FaceID);
+            auto inbsdf = material->getBSDF(info.texcoord);
+
+
             bsdf = inbsdf->samplingBSDF(wo, wi, pdf, sampler);
 
             const Vec3 next_direction = localToWorld(wi, t, info.normal, b);

@@ -40,10 +40,14 @@ public:
 
     void textureUVSet(const Vec2& uv) {
         rho = tex1->getTex(uv[0], uv[1]);
+        // std::cout << uv << std::endl;
+        // rho = Vec3(uv[0], uv[1], 0.0);
+        // std::cout << rho << std::endl;
     }
 
     Vec3 samplingBSDF(const Vec3& wo, Vec3& wi, float& pdf, std::shared_ptr<Sampler>& sampler) const override {
         wi = cosineSampling(sampler->getSample(), sampler->getSample(), pdf);
+        // return rho * PI_INV;
         return rho * PI_INV;
     }
     Vec3 evaluateBSDF(const Vec3& wo, const Vec3& wi)const override {

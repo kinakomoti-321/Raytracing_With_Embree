@@ -88,7 +88,8 @@ public:
                 Vec3 wi;
                 float pdf;
                 Vec3 bsdf;
-                auto material = scene.faceMaterial(info.FaceID);
+                auto mat = scene.faceMaterial(info.FaceID);
+                auto material = mat->getBSDF(info.texcoord);
                 // BSDF計算
                 bsdf = material->samplingBSDF(wo, wi, pdf, sample);
 

@@ -40,6 +40,9 @@ class NEE : public Integrator {
             Vec3 t, b;
             tangentSpaceBasis(info.normal, t, b);
 
+            auto mat = scene.faceMaterial(info.FaceID);
+            auto material = mat->getBSDF(info.texcoord);
+            material->textureUVSet(info.texcoord);
 
             // std::cout << "Test!" << std::endl;
             //光源サンプリング
@@ -53,7 +56,6 @@ class NEE : public Integrator {
 
             shadowRay.maxt = lightInfo.distance - 0.001f;
             IntersectInfo shadowInfo;
-            auto material = scene.faceMaterial(info.FaceID);
             // std::cout << "Test!" << std::endl;
             if (!scene.Intersection(shadowRay, shadowInfo)) {
                 float cosine1 = std::abs(dot(info.normal, lightDir));

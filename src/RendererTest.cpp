@@ -18,22 +18,21 @@
 #include "integrator/nee.hpp"
 #include "integrator/mis.hpp"
 #include "integrator/uvchecker.hpp"
+#include "integrator/texturechecker.hpp"
 #include "volume/volume.hpp"
 #include "integrator/volume_homo_renderer.hpp"
+#include "bsdf/material.hpp"
 #include <iostream>
 #include <memory>
 
 int main() {
     const unsigned int width = 512, height = 512;
     auto tex1 = std::make_shared<Texture>("../texture/UVChecker.jpg");
-    auto mat1 = std::make_shared<Lambert>(Vec3(0.9f));
-    auto mat2 = std::make_shared<Lambert>(Vec3(0.8, 0.2, 0.2));
-    auto mat3 = std::make_shared<Lambert>(Vec3(0.2, 0.8, 0.2));
-    auto mat4 = std::make_shared<Lambert>(Vec3(0.2, 0.2, 0.8));
-    auto mat5 = std::make_shared<Specular>(Vec3(0.9));
-    auto mat6 = std::make_shared<Glass>(Vec3(0.9), 1.4);
-    auto mat7 = std::make_shared<GGX_VisibleNormal>(Vec3(0.9), 0.1, 0.1);
-    auto mat8 = std::make_shared<Lambert>(tex1);
+
+    auto mat1 = std::make_shared<Diffuse>(Vec3(0.9));
+    auto mat2 = std::make_shared<Diffuse>(Vec3(0.9, 0.2, 0.2));
+    auto mat3 = std::make_shared<Diffuse>(Vec3(0.2, 0.9, 0.2));
+    auto mat4 = std::make_shared<Diffuse>(tex1);
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
@@ -48,22 +47,23 @@ int main() {
     auto integrator2 = std::make_shared<PathTracer>();
     auto integrator3 = std::make_shared<Volume_homo_render>();
     auto integrator4 = std::make_shared<UVChecker>();
+    auto integrator5 = std::make_shared<TextureChecker>();
 
     auto vol = std::make_shared<HomoVolume>(10.0, 10.0, -0.8, Vec3(0));
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
     // scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
-    scene.addPolygon("../model/UVpannel.obj", mat8);
-    scene.addPolygon("../model/cornel_L.obj", mat2);
-    scene.addPolygon("../model/cornel_R.obj", mat3);
+    scene.addPolygon("../model/UVBox.obj", mat4);
+    scene.addPolygon("../model/cornel_L.obj", mat3);
+    scene.addPolygon("../model/cornel_R.obj", mat2);
     scene.addPolygon("../model/cornelBox.obj", mat1);
     scene.addPolygon("../model/Light.obj", mat1, lit1);
     // scene.addPolygon("../model/CornellBox-Empty-CO.obj", mat1);
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator2, camera, 100);
-    renderer.Render(scene, "VolumeTest", sampler);
+    renderer.rendererSet(width, height, integrator, camera, 100);
+    renderer.Render(scene, "Texture_UVcheck", sampler);
     return 0;
 }

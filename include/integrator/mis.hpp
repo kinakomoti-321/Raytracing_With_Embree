@@ -46,7 +46,9 @@ public:
             Vec3 wi;
             float pdf;
             Vec3 bsdf;
-            auto material = scene.faceMaterial(info.FaceID);
+            auto mat = scene.faceMaterial(info.FaceID);
+            auto material = mat->getBSDF(info.texcoord);
+            material->textureUVSet(info.texcoord);
 
             //NEE
             {

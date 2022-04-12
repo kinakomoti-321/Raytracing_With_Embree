@@ -5,7 +5,7 @@
 #include "../core/intersectinfo.h"
 #include "../core/ray.h"
 #include "polygon.h"
-#include "bsdf/bsdf.hpp"
+#include "bsdf/material.hpp"
 #include <string>
 #include <memory>
 #include "sky.hpp"
@@ -30,7 +30,7 @@ public:
         rtcReleaseDevice(device);
     }
 
-    void addPolygon(const std::string& filepath, const std::shared_ptr<BSDF>& bsdf, const std::shared_ptr<Light>& lit = nullptr, const std::shared_ptr<Volume>& vol = nullptr) {
+    void addPolygon(const std::string& filepath, const std::shared_ptr<Material>& bsdf, const std::shared_ptr<Light>& lit = nullptr, const std::shared_ptr<Volume>& vol = nullptr) {
         poly.AddPolygon(filepath, bsdf, lit, vol);
     }
 
@@ -59,7 +59,7 @@ public:
         std::cout << "-------------------" << std::endl;
     }
 
-    std::shared_ptr<BSDF> faceMaterial(unsigned int FaceID)const {
+    std::shared_ptr<Material> faceMaterial(unsigned int FaceID)const {
         return poly.getMaterial(FaceID);
     }
     std::shared_ptr<Light> faceLight(unsigned int FaceID)const {

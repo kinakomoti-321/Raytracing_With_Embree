@@ -117,8 +117,6 @@ public:
     std::string getBSDFname()const {
         return "GGX";
     }
-    void textureUVSet(const Vec2& uv) {
-    }
 };
 
 class GGX_anistropic :public BSDF {
@@ -151,7 +149,7 @@ public:
         F0Tex = std::make_shared<Texture>(F0);
         roughnessTex = std::make_shared<Texture>(Vec3(Roughness));
         anisotoropicTex = std::make_shared<Texture>(Vec3(Anisotropic));
-        rotateTanTex = std::make_shared<Texture>(rotateTan);
+        rotateTanTex = std::make_shared<Texture>(Vec3(rotateTan));
     }
 
     GGX_anistropic(const std::shared_ptr<Texture>& tex1, const std::shared_ptr<Texture>& tex2, const std::shared_ptr<Texture>& tex3, const std::shared_ptr<Texture>& tex4) {
@@ -276,8 +274,6 @@ public:
     std::string getBSDFname() {
         return "GGX_anisotropic";
     }
-    void textureUVSet(const Vec2& uv) {
-    }
 };
 
 class GGX_VisibleNormal :public BSDF {
@@ -292,6 +288,8 @@ private:
     std::shared_ptr<Texture> roughnessTex;
     std::shared_ptr<Texture> anisotoropicTex;
     std::shared_ptr<Texture> rotateTanTex;
+
+
     Vec3 Fresnel(const float im) const {
         float delta = std::max(1.0f - im, 0.0f);
         return F0 + (Vec3(1.0f) - F0) * std::pow(delta, 5);
@@ -307,7 +305,7 @@ public:
         F0Tex = std::make_shared<Texture>(F0);
         roughnessTex = std::make_shared<Texture>(Vec3(Roughness));
         anisotoropicTex = std::make_shared<Texture>(Vec3(Anisotropic));
-        rotateTanTex = std::make_shared<Texture>(rotateTan);
+        rotateTanTex = std::make_shared<Texture>(Vec3(rotateTan));
     }
 
     GGX_VisibleNormal(const std::shared_ptr<Texture>& tex1, const std::shared_ptr<Texture>& tex2, const std::shared_ptr<Texture>& tex3, const std::shared_ptr<Texture>& tex4) {
@@ -439,6 +437,4 @@ public:
         return "GGX_VisibleNormal";
     }
 
-    void textureUVSet(const Vec2& uv) {
-    }
 };

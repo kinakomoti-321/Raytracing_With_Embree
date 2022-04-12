@@ -5,26 +5,21 @@
 #include "sampling/sampler.hpp"
 #include "math/vec3.h"
 #include "core/intersectinfo.h"
-#include "core/constant.hpp"
 
-class TestTrace :public Integrator {
+class TextureChecker :public Integrator {
 
 public:
     Vec3 integrate(const Ray& ray, const Scene& scene, std::shared_ptr<Sampler>& sampler) const {
         IntersectInfo info;
-        if (!scene.Intersection(ray, info)) {
-            return Vec3(0);
-        }
-
+        if (!scene.Intersection(ray, info)) return Vec3(0);
         auto material = scene.faceMaterial(info.FaceID);
-        auto brdf = material->getBSDF(info.texcoord);
+        auto bsdf = material->getBSDF(info.texcoord);
         Vec3 wo;
         Vec3 wi;
         float pdf;
-
-        return brdf->samplingBSDF(wo, wi, pdf, sampler) * PI;
+        return bsdf->samplingBSDF(wo, wi, pdf, sampler);
     };
     std::string getIntegratorType() const {
-        return "NormalChecker";
+        return "UVChecker";
     };
 };
