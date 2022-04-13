@@ -54,11 +54,13 @@ public:
                 wo = -next_ray.direction;
                 //光源サンプリング
                 IntersectInfo lightInfo;
-                scene.lightPointSampling(pdf, sample, lightInfo);
-                Vec3 lightPos = lightInfo.position;
-                Vec3 lightDir = normalize(lightPos - info.position);
+                lightInfo.position = info.position;
+                lightInfo.normal = info.normal;
+                Vec3 lightLe;
+                bool is_scenesample;
+                Vec3 lightDir =
+                    scene.lightPointSampling(pdf, sample, lightInfo, lightLe, is_scenesample);
                 Ray shadowRay(info.position, lightDir);
-                lightInfo.distance = norm(lightPos - info.position);
 
                 shadowRay.maxt = lightInfo.distance - 0.001f;
                 IntersectInfo shadowInfo;

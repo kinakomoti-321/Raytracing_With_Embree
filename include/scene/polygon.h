@@ -169,16 +169,20 @@ public:
         return std::abs(norm(cross(va1, va2))) / 2.0f;
     }
 
-    void sampleLightPoint(float& pdf, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info)const {
+    Vec3 sampleLightPoint(float& pdf, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info, Vec3& lightLe)const {
         int nlit = lightFaceID.size();
         unsigned int lightID = nlit * sampler->getSample();
         if (lightID == nlit) lightID--;
 
         unsigned int faceID = lightFaceID[lightID];
         pdf = 1.0f / static_cast<float>(getTriangleArea(faceID) * nlit);
-
+        Vec3 surfacePos = info.position;
         areaSampling(faceID, sampler, info);
+
+        lightLe = getLight(faceID)->le();
         info.FaceID = faceID;
+        info.distance = norm(info.position - surfacePos);
+        return normalize(info.position - surfacePos);
     }
 
     float lightPointPDF(unsigned int FaceID, const Vec3& lightPos) const {
@@ -223,7 +227,9 @@ public:
     bool hasLight(unsigned int FaceID)const {
         return light[FaceID] != nullptr;
     }
-
+    bool hasLightScene() const {
+        return lightFaceID.size() != 0;
+    }
     void attachGeometry(RTCGeometry& geom) const {
         unsigned int nvert = vertices.size() / 3;
         float* vb = (float*)rtcSetNewGeometryBuffer(geom,

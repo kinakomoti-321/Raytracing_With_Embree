@@ -44,40 +44,50 @@ class NEE : public Integrator {
             auto material = mat->getBSDF(info.texcoord);
             // std::cout << "Test!" << std::endl;
             //光源サンプリング
-            IntersectInfo lightInfo;
-            scene.lightPointSampling(pdf, sampler, lightInfo);
+            {
+                IntersectInfo lightInfo;
+                lightInfo.position = info.position;
+                lightInfo.normal = info.normal;
+                Vec3 lightLe;
+                bool is_sceneSample;
+                Vec3 lightDir =
+                    scene.lightPointSampling(pdf, sampler, lightInfo, lightLe, is_sceneSample);
 
-            Vec3 lightPos = lightInfo.position;
-            Vec3 lightDir = normalize(lightPos - info.position);
-            Ray shadowRay(info.position, lightDir);
-            lightInfo.distance = norm(lightPos - info.position);
+                Ray shadowRay(info.position, lightDir);
 
-            shadowRay.maxt = lightInfo.distance - 0.001f;
-            IntersectInfo shadowInfo;
-            // std::cout << "Test!" << std::endl;
-            if (!scene.Intersection(shadowRay, shadowInfo)) {
-                float cosine1 = std::abs(dot(info.normal, lightDir));
-                float cosine2 = std::abs(dot(lightInfo.normal, -lightDir));
+                // std::cout << std::endl;
+                // std::cout << lightDir << std::endl;
+                // std::cout << lightLe << std::endl;
+                // std::cout << pdf << std::endl;
+                // std::cout << lightInfo.distance << std::endl;
 
-                wi = lightDir;
+                shadowRay.maxt = lightInfo.distance - 0.001f;
+                IntersectInfo shadowInfo;
 
-                Vec3 local_wo = worldtoLocal(wo, t, info.normal, b);
-                Vec3 local_wi = worldtoLocal(wi, t, info.normal, b);
+                if (!scene.Intersection(shadowRay, shadowInfo)) {
+                    float cosine1 = std::abs(dot(info.normal, lightDir));
+                    float cosine2 = std::abs(dot(lightInfo.normal, -lightDir));
 
-                bsdf = material->evaluateBSDF(local_wo, local_wi);
+                    wi = lightDir;
 
-                float G = cosine2 / (lightInfo.distance * lightInfo.distance);
+                    Vec3 local_wo = worldtoLocal(wo, t, info.normal, b);
+                    Vec3 local_wi = worldtoLocal(wi, t, info.normal, b);
 
-                // DebugLog("cosine1", cosine1);
-                // DebugLog("cosine2", cosine2);
-                // DebugLog("dis2", lightInfo.distance * lightInfo.distance);
-                // DebugLog("bsdf", bsdf);
-                // DebugLog("G", G);
-                // std::cout << "Test!" << std::endl;
+                    bsdf = material->evaluateBSDF(local_wo, local_wi);
 
-                LTE += throughput * (bsdf * G * cosine1 / pdf) * scene.faceLight(lightInfo.FaceID)->le();
+                    float G = (is_sceneSample) ? 1.0f : cosine2 / (lightInfo.distance * lightInfo.distance);
+
+
+                    // std::cout << "cosine1" << cosine1 << std::endl;
+                    // std::cout << cosine2 << std::endl;
+                    // std::cout << wi << std::endl;
+                    // std::cout << bsdf << std::endl;
+                    // std::cout << G << std::endl;;
+                    // std::cout << throughput * (bsdf * G * cosine1 / pdf) * lightLe << std::endl;
+                    // std::cout << std::endl;
+                    LTE += throughput * (bsdf * G * cosine1 / pdf) * lightLe;
+                }
             }
-
             wo = worldtoLocal(-next_ray.direction, t, info.normal, b);
             // BSDF計算
             bsdf = material->samplingBSDF(wo, wi, pdf, sampler);

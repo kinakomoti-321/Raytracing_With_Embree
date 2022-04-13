@@ -38,6 +38,9 @@ public:
         sky = Sky(le);
     }
 
+    void setSkySphere(const std::shared_ptr<WorldTexture>& le) {
+        sky = Sky(le);
+    }
     void SceneBuild() {
         std::cout << std::endl << "-------------------" << std::endl;
         std::cout << "scene build start" << std::endl;
@@ -62,6 +65,7 @@ public:
     std::shared_ptr<Material> faceMaterial(unsigned int FaceID)const {
         return poly.getMaterial(FaceID);
     }
+
     std::shared_ptr<Light> faceLight(unsigned int FaceID)const {
         return poly.getLight(FaceID);
     }
@@ -73,6 +77,7 @@ public:
     bool faceHasLight(unsigned int FaceID)const {
         return poly.hasLight(FaceID);
     }
+
     bool faceHasVolume(unsigned int FaceID)const {
         return faceVolume(FaceID) != nullptr;
     }
@@ -80,8 +85,24 @@ public:
     Vec3 getSkyLe(const Vec3& rayDir)const {
         return sky.Le(rayDir);
     }
-    void lightPointSampling(float& pdf, const std::shared_ptr<Sampler>& sampler, IntersectInfo& info)const {
-        poly.sampleLightPoint(pdf, sampler, info);
+
+    //infoには現在地とそのノーマルを入れること
+    Vec3 lightPointSampling(float& pdf, const std::shared_ptr<Sampler>& sampler,
+        IntersectInfo& info, Vec3& LightLe, bool& is_sceneSample)const {
+        float p = sampler->getSample();
+        bool hasLight = poly.hasLightScene();
+        Vec3 Dir;
+        if (p < 0.5 && hasLight) {
+            Dir = poly.sampleLightPoint(pdf, sampler, info, LightLe);
+            pdf *= 0.5f;
+            is_sceneSample = false;
+        }
+        else {
+            is_sceneSample = true;
+            Dir = sky.sampleLightSampling(sampler, info, pdf, LightLe);
+            pdf *= (hasLight) ? 0.5f : 1.0f;
+        }
+        return Dir;
     }
 
     float lightPointPDF(unsigned int FaceID, Vec3 lightPos) const {

@@ -113,45 +113,55 @@ public:
     std::shared_ptr<Image> image;
     string name;
 
+    WorldTexture() {
+        image = std::make_shared<Image>(1, 1);
+        image->setPixel(0, 0, Vec3(0));
+    }
+    WorldTexture(const Vec3& col) {
+        image = std::make_shared<Image>(1, 1);
+        image->setPixel(0, 0, col);
+    }
     WorldTexture(const string& filename)
     {
         cout << "Texture Loading :" << filename << endl;
         int width, height, channels;
-        float* img = stbi_loadf(filename.c_str(), &width, &height, &channels, 0);
+        float* img = stbi_loadf(filename.c_str(), &width, &height, &channels, 3);
         if (img == NULL)
         {
             cout << "Texture " << filename << " Load Failed" << endl;
-            image = std::make_shared<Image>(1, 1);
+            image = make_shared<Image>(1, 1);
             return;
         }
         image = std::make_shared<Image>(width, height);
-        cout << width << " " << height << endl;
-        cout << "Texture loading" << endl;
 
-        for (int j = 0; j < width; j++)
+        for (int j = 0; j < height; j++)
         {
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < width; i++)
             {
-                int index = 3 * j + 3 * width * i;
 
                 constexpr float divider = 1.0f / 255.0f;
-                const float R = img[3 * j + 3 * width * i];
-                const float G = img[3 * j + 3 * width * i + 1];
-                const float B = img[3 * j + 3 * width * i + 2];
-                image->setPixel(j, i, Vec3(R, G, B));
+                const unsigned int idx = i * 3 + 3 * width * j;
+                const float R = img[idx];
+                const float G = img[idx + 1];
+                const float B = img[idx + 2];
+                image->setPixel(i, j, Vec3(R, G, B));
             }
         }
-        cout << "Texture " << filename << " Load Finished" << endl;
+
         name = filename;
     }
 
     Vec3 getTex(float u, float v)
     {
         Vec2 uv = calcTexCoord(u, v);
-        unsigned int u1 = floor(uv[0] * image->getWidth());
-        unsigned int v1 = floor(uv[1] * image->getHeight());
+        unsigned int u1 = std::clamp(static_cast<int>(uv[0] * image->getWidth()), 0, int(image->getWidth() - 1));
+        unsigned int v1 = std::clamp(static_cast<int>(uv[1] * image->getHeight()), 0, int(image->getHeight() - 1));
+
         return image->getPixel(u1, v1);
     }
 
+    void writePNG(std::string filename) {
+        image->writePNG(filename);
+    }
 };
 #endif

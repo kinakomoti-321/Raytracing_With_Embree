@@ -34,20 +34,22 @@ int main() {
     auto tex5 = std::make_shared<Texture>("../texture/Noise.png");
     auto tex6 = std::make_shared<Texture>("../texture/Moon.jpg");
     auto tex7 = std::make_shared<Texture>("../texture/Earth.jpg");
-    tex7->writePNG("test");
+
+    auto worldtex = std::make_shared<WorldTexture>("../texture/TestHDR.hdr");
+    // auto worldtex = std::make_shared<WorldTexture>(Vec3(1.0));
     auto mat1 = std::make_shared<Diffuse>(Vec3(0.9));
     auto mat2 = std::make_shared<Diffuse>(Vec3(0.9, 0.2, 0.2));
     auto mat3 = std::make_shared<Diffuse>(Vec3(0.2, 0.9, 0.2));
     auto mat4 = std::make_shared<Diffuse>(tex1);
     auto mat5 = std::make_shared<IdealGlass>(tex3, tex5);
     auto mat6 = std::make_shared<Metallic>(tex3, tex5, tex4, tex4);
-    auto mat7 = std::make_shared<Mirror>(tex1);
+    auto mat7 = std::make_shared<Mirror>(tex3);
     auto mat8 = std::make_shared<Diffuse>(tex6);
     auto mat9 = std::make_shared<Diffuse>(tex7);
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
-    Vec3 cameraPos(0, 0, -3.5);
+    Vec3 cameraPos(1.0, -1.0, 1.0);
     Vec3 cameraDir = normalize(Vec3(0, 0, 0) - cameraPos);
 
 
@@ -64,19 +66,20 @@ int main() {
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
+    scene.setSkySphere(worldtex);
     // scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
-    scene.addPolygon("../model/Sphere1.obj", mat8);
+    scene.addPolygon("../model/Sphere1.obj", mat7);
     scene.addPolygon("../model/Sphere2.obj", mat9);
-    // scene.addPolygon("../model/UVBox.obj", mat5);
-    scene.addPolygon("../model/cornel_L.obj", mat3);
-    scene.addPolygon("../model/cornel_R.obj", mat2);
-    scene.addPolygon("../model/cornelBox.obj", mat1);
-    scene.addPolygon("../model/Light.obj", mat1, lit1);
+    // // scene.addPolygon("../model/UVBox.obj", mat5);
+    // scene.addPolygon("../model/cornel_L.obj", mat3);
+    // scene.addPolygon("../model/cornel_R.obj", mat2);
+    // scene.addPolygon("../model/cornelBox.obj", mat1);
+    // scene.addPolygon("../model/Light.obj", mat1, lit1);
     // scene.addPolygon("../model/CornellBox-Empty-CO.obj", mat1);
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 200);
-    renderer.Render(scene, "Texture_UVcheck", sampler);
+    renderer.rendererSet(width, height, integrator1, camera, 100);
+    renderer.Render(scene, "WorldTest", sampler);
     return 0;
 }
