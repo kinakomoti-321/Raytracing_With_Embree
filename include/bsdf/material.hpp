@@ -44,13 +44,13 @@ private:
 public:
     IdealGlass(const Vec3& col, const float& ior) {
         _basecolor = std::make_shared<Texture>(col);
-        _ior = std::make_shared<Texture>(ior);
+        _ior = std::make_shared<Texture>(Vec3(ior));
     }
     IdealGlass(const std::shared_ptr<Texture>& _basecolor, const std::shared_ptr<Texture>& _ior) :_basecolor(_basecolor), _ior(_ior) {}
 
     std::shared_ptr<BSDF> getBSDF(const Vec2& uv)const {
         Vec3 rho = _basecolor->getTex(uv[0], uv[1]);
-        float ior = _ior->getTex(uv[0], uv[1])[0];
+        float ior = _ior->getTex(uv[0], uv[1])[0] + 1.0f;
 
         return std::make_shared<Glass>(rho, ior);
     }
@@ -79,7 +79,7 @@ public:
 
     std::shared_ptr<BSDF> getBSDF(const Vec2& uv)const {
         Vec3 rho = _baseColor->getTex(uv[0], uv[1]);
-        float roughness = _roughness->getTex(uv[0], uv[1])[0];
+        float roughness = _roughness->getTex(uv[0], uv[1])[2];
         float anisotropic = _anisotropic->getTex(uv[0], uv[1])[0];
         float rotateTangent = _rotatetangent->getTex(uv[0], uv[1])[0];
         return std::make_shared<GGX_VisibleNormal>(rho, roughness, anisotropic, rotateTangent);

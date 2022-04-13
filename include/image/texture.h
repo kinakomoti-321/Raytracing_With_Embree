@@ -58,15 +58,16 @@ public:
         }
         image = std::make_shared<Image>(width, height);
 
-        for (int j = 0; j < width; j++)
+        for (int j = 0; j < height; j++)
         {
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < width; i++)
             {
 
                 constexpr float divider = 1.0f / 255.0f;
-                const float R = std::pow(img[3 * j + 3 * width * i] * divider, 2.2f);
-                const float G = std::pow(img[3 * j + 3 * width * i + 1] * divider, 2.2f);
-                const float B = std::pow(img[3 * j + 3 * width * i + 2] * divider, 2.2f);
+                const unsigned int idx = i * 3 + 3 * width * j;
+                const float R = std::pow(img[idx] * divider, 2.2f);
+                const float G = std::pow(img[idx + 1] * divider, 2.2f);
+                const float B = std::pow(img[idx + 2] * divider, 2.2f);
                 image->setPixel(i, j, Vec3(R, G, B));
             }
         }
@@ -151,5 +152,6 @@ public:
         unsigned int v1 = floor(uv[1] * image->getHeight());
         return image->getPixel(u1, v1);
     }
+
 };
 #endif

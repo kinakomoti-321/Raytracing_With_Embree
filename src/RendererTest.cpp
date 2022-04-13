@@ -28,15 +28,26 @@
 int main() {
     const unsigned int width = 512, height = 512;
     auto tex1 = std::make_shared<Texture>("../texture/UVChecker.jpg");
-
+    auto tex2 = std::make_shared<Texture>(Vec3(1.33));
+    auto tex3 = std::make_shared<Texture>(Vec3(1.0));
+    auto tex4 = std::make_shared<Texture>(Vec3(0));
+    auto tex5 = std::make_shared<Texture>("../texture/Noise.png");
+    auto tex6 = std::make_shared<Texture>("../texture/Moon.jpg");
+    auto tex7 = std::make_shared<Texture>("../texture/Earth.jpg");
+    tex7->writePNG("test");
     auto mat1 = std::make_shared<Diffuse>(Vec3(0.9));
     auto mat2 = std::make_shared<Diffuse>(Vec3(0.9, 0.2, 0.2));
     auto mat3 = std::make_shared<Diffuse>(Vec3(0.2, 0.9, 0.2));
     auto mat4 = std::make_shared<Diffuse>(tex1);
+    auto mat5 = std::make_shared<IdealGlass>(tex3, tex5);
+    auto mat6 = std::make_shared<Metallic>(tex3, tex5, tex4, tex4);
+    auto mat7 = std::make_shared<Mirror>(tex1);
+    auto mat8 = std::make_shared<Diffuse>(tex6);
+    auto mat9 = std::make_shared<Diffuse>(tex7);
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
-    Vec3 cameraPos(0, 0, -3);
+    Vec3 cameraPos(0, 0, -3.5);
     Vec3 cameraDir = normalize(Vec3(0, 0, 0) - cameraPos);
 
 
@@ -54,7 +65,9 @@ int main() {
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
     // scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
-    scene.addPolygon("../model/UVBox.obj", mat4);
+    scene.addPolygon("../model/Sphere1.obj", mat8);
+    scene.addPolygon("../model/Sphere2.obj", mat9);
+    // scene.addPolygon("../model/UVBox.obj", mat5);
     scene.addPolygon("../model/cornel_L.obj", mat3);
     scene.addPolygon("../model/cornel_R.obj", mat2);
     scene.addPolygon("../model/cornelBox.obj", mat1);
@@ -63,7 +76,7 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 100);
+    renderer.rendererSet(width, height, integrator, camera, 200);
     renderer.Render(scene, "Texture_UVcheck", sampler);
     return 0;
 }

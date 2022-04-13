@@ -255,9 +255,9 @@ private:
     }
 
 public:
-    GGX_VisibleNormal(const Vec3& F0, const float Roughness, const float Anisotropic, const float rotateTan) :F0(F0) {
+    GGX_VisibleNormal(const Vec3& F0, const float Roughness, const float& Anisotropic, const float& rotateTan) :F0(F0) {
         float aspect = std::sqrt(1.0 - Anisotropic * 0.9);
-        float r2 = Roughness * Roughness;
+        float r2 = std::clamp(Roughness * Roughness, 0.01f, 1.0f);
         a_x = r2 / aspect;
         a_y = r2 * aspect;
         rotateTangent = rotateTan;
