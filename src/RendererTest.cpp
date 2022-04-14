@@ -67,10 +67,10 @@ int main() {
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
-    // scene.setSkySphere(worldtex);
+    scene.setSkySphere(worldtex);
 
-    scene.setSkyDirectionalLight(normalize(Vec3(1, 1, -1)), Vec3(1.0));
-    scene.addPolygon("../model/dragon.obj", mat1, nullptr, vol);
+    scene.setSkyDirectionalLight(normalize(Vec3(1, 1, -1)), Vec3(2.0));
+    scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
     // scene.addPolygon("../model/floor.obj", mat9);
     // scene.addPolygon("../model/Sphere1.obj", mat6);
     // scene.addPolygon("../model/Sphere2.obj", mat6);
@@ -83,12 +83,12 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 100);
+    renderer.rendererSet(width, height, integrator, camera, 300);
     // renderer.Render(scene, "MISreference", sampler);
-    renderer.TimeLimitRender(scene, "IBL-MIS-NEEtest", sampler, 60000);
-    renderer.rendererSet(width, height, integrator2, camera, 100);
-    renderer.TimeLimitRender(scene, "IBL-PTtest", sampler, 60000);
-    renderer.rendererSet(width, height, integrator1, camera, 100);
-    renderer.TimeLimitRender(scene, "IBL-NEEtest", sampler, 60000);
+    renderer.TimeLimitRender(scene, "IBL-MIS-NEEtest", sampler, 240000);
+    // renderer.rendererSet(width, height, integrator2, camera, 100);
+    // renderer.TimeLimitRender(scene, "IBL-PTtest", sampler, 60000);
+    // renderer.rendererSet(width, height, integrator1, camera, 100);
+    // renderer.TimeLimitRender(scene, "IBL-NEEtest", sampler, 60000);
     return 0;
 }
