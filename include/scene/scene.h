@@ -41,6 +41,10 @@ public:
     void setSkySphere(const std::shared_ptr<WorldTexture>& le) {
         sky = Sky(le);
     }
+
+    void setSkyDirectionalLight(const Vec3& dir, const Vec3& le) {
+        sky.setDirectionalLight(dir, le);
+    }
     void SceneBuild() {
         std::cout << std::endl << "-------------------" << std::endl;
         std::cout << "scene build start" << std::endl;
@@ -106,7 +110,10 @@ public:
     }
 
     float lightPointPDF(unsigned int FaceID, Vec3 lightPos) const {
-        return poly.lightPointPDF(FaceID, lightPos);
+        return poly.lightPointPDF(FaceID, lightPos) * 0.5f;
+    }
+    float skylightPointPDF(const Vec3& dir)const {
+        return sky.skyLightPointPDF(dir) * ((poly.hasLightScene()) ? 0.5f : 1.0f);
     }
 
     bool Intersection(const Ray& inray, IntersectInfo& info)const {

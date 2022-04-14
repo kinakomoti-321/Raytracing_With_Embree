@@ -12,24 +12,36 @@ private:
     std::shared_ptr<WorldTexture> LE;
     Vec3 DirectionalLight = Vec3(0);
     Vec3 DirectionalLightLe = Vec3(0);
-
+    bool hasDirectionalLight;
 public:
     Sky() {
         LE = std::make_shared<WorldTexture>(Vec3(0.0));
+        hasDirectionalLight = false;
     }
 
     Sky(const Vec3& Le) {
         LE = std::make_shared<WorldTexture>(Le);
+        hasDirectionalLight = false;
     }
 
     Sky(const std::shared_ptr<WorldTexture>& le) {
         LE = le;
+        hasDirectionalLight = false;
     }
 
     Sky(const Vec3& LightDir, const Vec3& LightLe) {
         DirectionalLight = normalize(LightDir);
         DirectionalLightLe = LightLe;
+        LE = std::make_shared<WorldTexture>(Vec3(0.0));
+        hasDirectionalLight = true;
     }
+
+    void setDirectionalLight(const Vec3& dir, const Vec3& le) {
+        DirectionalLight = normalize(dir);
+        DirectionalLightLe = le;
+        hasDirectionalLight = true;
+    }
+
     Vec2 calcUVSphere(const Vec3& dir)const {
         Vec2 uv;
         float theta = std::acos(dir[1]);
@@ -54,17 +66,21 @@ public:
         Vec3 normal = info.normal;
         Vec3 lightDirection;
         Vec3 t, b;
-        tangentSpaceBasis(normal, t, b);
 
-        if (norm(DirectionalLight) == 0.0f) {
+        tangentSpaceBasis(normal, t, b);
+        bool hasDireLight = hasDirectionalLight;
+        float p = sampler->getSample();
+        if (p < 0.5f && hasDireLight) {
+            lightDirection = DirectionalLight;
+            pdf = 0.5f;
+            LightLe = DirectionalLightLe;
+        }
+        else {
             Vec3 lightsampleDir = SphereSampling(sampler->getSample(), sampler->getSample(), pdf);
             lightDirection = localToWorld(lightsampleDir, t, normal, b);
             LightLe = Le(lightDirection);
-        }
-        else {
-            lightDirection = normalize(Vec3(1, 1, -1));
-            pdf = 1.0f;
-            LightLe = DirectionalLightLe;
+            pdf *= (hasDireLight) ? 0.5f : 1.0f;
+            // std::cout << pdf << std::endl;
         }
 
         info.distance = 1000.0;
@@ -72,5 +88,9 @@ public:
         // LightLe = Vec3(1.0);
 
         return lightDirection;
+    }
+    float skyLightPointPDF(const Vec3& dir)const {
+        return 1.0f / (2.0f * PI) * ((hasDirectionalLight) ? 0.5f : 1.0f);
+
     }
 };
