@@ -18,10 +18,11 @@ public:
         cameraSide = b;
     }
 
-    Ray getCameraRay(float u, float v) const override {
+    Ray getCameraRay(float u, float v, const std::shared_ptr<Sampler>& sampler, float& weight) const override {
         Ray ray;
         ray.origin = origin;
         ray.direction = normalize(cameraDir * p - cameraSide * v + cameraUp * u);
+        weight = 1.0;
         return ray;
     }
 

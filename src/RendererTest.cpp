@@ -22,6 +22,7 @@
 #include "volume/volume.hpp"
 #include "integrator/volume_homo_renderer.hpp"
 #include "bsdf/material.hpp"
+#include "camera/thinlens.h"
 #include <iostream>
 #include <memory>
 
@@ -50,11 +51,12 @@ int main() {
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
-    Vec3 cameraPos(0.0, 0.0, -3.5);
+    Vec3 cameraPos(0.0, 0.0, -4.0);
     Vec3 cameraDir = normalize(Vec3(0, 0, 0) - cameraPos);
 
 
     auto camera = std::make_shared<PinholeCamera>(cameraPos, cameraDir, 2.0f);
+    auto camera1 = std::make_shared<ThinLens>(cameraPos, cameraDir, 2.0, 0.9, 50.0);
 
     auto integrator = std::make_shared<MIS>();
     auto integrator1 = std::make_shared<NEE>();
@@ -83,9 +85,9 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator, camera, 300);
+    renderer.rendererSet(width, height, integrator2, camera1, 100);
     // renderer.Render(scene, "MISreference", sampler);
-    renderer.TimeLimitRender(scene, "IBL-MIS-NEEtest", sampler, 240000);
+    renderer.TimeLimitRender(scene, "MIS-Sample", sampler, 60000);
     // renderer.rendererSet(width, height, integrator2, camera, 100);
     // renderer.TimeLimitRender(scene, "IBL-PTtest", sampler, 60000);
     // renderer.rendererSet(width, height, integrator1, camera, 100);

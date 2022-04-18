@@ -100,8 +100,9 @@ public:
                 lightInfo.normal = info.normal;
                 Vec3 lightLe;
                 bool is_sceneSample;
+                bool is_directionalLight;
                 Vec3 lightDir =
-                    scene.lightPointSampling(pdf, sample, lightInfo, lightLe, is_sceneSample);
+                    scene.lightPointSampling(pdf, sample, lightInfo, lightLe, is_sceneSample, is_directionalLight);
 
                 Ray shadowRay(info.position, lightDir);
 
@@ -127,16 +128,9 @@ public:
 
                     float G = (is_sceneSample) ? 1.0f : cosine2 / (lightInfo.distance * lightInfo.distance);
                     float lightpdf = pdf;
-                    float pathpdf = material->samplePDF(local_wo, local_wi) * G;
+                    float pathpdf = (is_directionalLight) ? 0.0f : material->samplePDF(local_wo, local_wi) * G;
                     float MISweight = lightpdf / (lightpdf + pathpdf);
 
-                    // std::cout << "cosine1" << cosine1 << std::endl;
-                    // std::cout << cosine2 << std::endl;
-                    // std::cout << wi << std::endl;
-                    // std::cout << bsdf << std::endl;
-                    // std::cout << G << std::endl;;
-                    // std::cout << throughput * (bsdf * G * cosine1 / pdf) * lightLe << std::endl;
-                    // std::cout << std::endl;
                     LTE += throughput * MISweight * (bsdf * G * cosine1 / pdf) * lightLe;
                 }
             }

@@ -50,8 +50,9 @@ class NEE : public Integrator {
                 lightInfo.normal = info.normal;
                 Vec3 lightLe;
                 bool is_sceneSample;
+                bool is_directionalSample;
                 Vec3 lightDir =
-                    scene.lightPointSampling(pdf, sampler, lightInfo, lightLe, is_sceneSample);
+                    scene.lightPointSampling(pdf, sampler, lightInfo, lightLe, is_sceneSample, is_directionalSample);
 
                 Ray shadowRay(info.position, lightDir);
 

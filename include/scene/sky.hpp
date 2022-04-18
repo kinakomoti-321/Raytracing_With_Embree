@@ -61,7 +61,7 @@ public:
 
     //Light Direction return
     Vec3 sampleLightSampling(const std::shared_ptr<Sampler>& sampler,
-        IntersectInfo& info, float& pdf, Vec3& LightLe)const {
+        IntersectInfo& info, float& pdf, Vec3& LightLe, bool& is_directionalSample)const {
 
         Vec3 normal = info.normal;
         Vec3 lightDirection;
@@ -74,12 +74,14 @@ public:
             lightDirection = DirectionalLight;
             pdf = 0.5f;
             LightLe = DirectionalLightLe;
+            is_directionalSample = true;
         }
         else {
             Vec3 lightsampleDir = SphereSampling(sampler->getSample(), sampler->getSample(), pdf);
             lightDirection = localToWorld(lightsampleDir, t, normal, b);
             LightLe = Le(lightDirection);
             pdf *= (hasDireLight) ? 0.5f : 1.0f;
+            is_directionalSample = false;
             // std::cout << pdf << std::endl;
         }
 

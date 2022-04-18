@@ -92,7 +92,7 @@ public:
 
     //infoには現在地とそのノーマルを入れること
     Vec3 lightPointSampling(float& pdf, const std::shared_ptr<Sampler>& sampler,
-        IntersectInfo& info, Vec3& LightLe, bool& is_sceneSample)const {
+        IntersectInfo& info, Vec3& LightLe, bool& is_sceneSample, bool& is_directionalSample)const {
         float p = sampler->getSample();
         bool hasLight = poly.hasLightScene();
         Vec3 Dir;
@@ -103,7 +103,7 @@ public:
         }
         else {
             is_sceneSample = true;
-            Dir = sky.sampleLightSampling(sampler, info, pdf, LightLe);
+            Dir = sky.sampleLightSampling(sampler, info, pdf, LightLe, is_directionalSample);
             pdf *= (hasLight) ? 0.5f : 1.0f;
         }
         return Dir;

@@ -61,11 +61,11 @@ public:
                     float u = (2.0f * (i + sampler->getSample() - 0.5f) - width) / height;
                     float v = (2.0f * (j + sampler->getSample() - 0.5f) - height) / height;
 
-                    Ray cameraRay = camera->getCameraRay(u, v);
-                    Vec3 radiance = integrator->integrate(cameraRay, scene, sampler);
+                    float weight;
+                    Ray cameraRay = camera->getCameraRay(u, v, sampler, weight);
+                    Vec3 radiance = integrator->integrate(cameraRay, scene, sampler) * weight;
                     sumRadiance += radiance;
                 }
-
                 image->setPixel(i, j, sumRadiance / static_cast<float>(sampling));
             }
         }
@@ -109,7 +109,8 @@ public:
                     float u = (2.0f * (i + sampler->getSample() - 0.5f) - width) / height;
                     float v = (2.0f * (j + sampler->getSample() - 0.5f) - height) / height;
 
-                    Ray cameraRay = camera->getCameraRay(u, v);
+                    float weight;
+                    Ray cameraRay = camera->getCameraRay(u, v, sampler, weight);
                     Vec3 radiance = integrator->integrate(cameraRay, scene, sampler);
                     sumRadiance = radiance;
 
