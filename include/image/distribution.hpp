@@ -48,7 +48,7 @@ struct Distribution1D {
             }
         }
 
-        return std::clamp(first - 1, 0, cdf.size() - 2);
+        return std::clamp(first - 1, 0, int(cdf.size()) - 2);
     }
 
     float getSample(const float u, float& pdf, unsigned int& offset) const {
@@ -74,7 +74,7 @@ private:
     std::unique_ptr<Distribution1D> pMargin;
 
 public:
-    Distribution2D(const float* data, int nu, int nv) {
+    Distribution2D(const std::vector<float>& data, int nu, int nv) {
         for (int j = 0; j < nv; j++) {
             std::vector<float> func;
             for (int i = 0; i < nu; i++) {
@@ -113,6 +113,7 @@ public:
         auto image = std::make_shared<Image>(width, height);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
+                // image->setPixel(i, j, Vec3(1.0) * getPDF(Vec2(i / width, j / height)));
                 image->setPixel(i, j, Vec3(1.0) * getPDF(Vec2(i / width, j / height)));
             }
         }

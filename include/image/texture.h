@@ -10,6 +10,8 @@
 #include <memory>
 #include <cmath>
 #include <algorithm>
+#include "distribution.hpp"
+#include "color.hpp"
 
 using namespace std;
 
@@ -112,14 +114,21 @@ private:
 public:
     std::shared_ptr<Image> image;
     string name;
+    std::shared_ptr<Distribution2D> _distribution;
 
     WorldTexture() {
         image = std::make_shared<Image>(1, 1);
         image->setPixel(0, 0, Vec3(0));
+        std::vector<float> data;
+        data.push_back(1);
+        _distribution = std::make_shared<Distribution2D>(data, 1, 1);
     }
     WorldTexture(const Vec3& col) {
         image = std::make_shared<Image>(1, 1);
         image->setPixel(0, 0, col);
+        std::vector<float> data;
+        data.push_back(1);
+        _distribution = std::make_shared<Distribution2D>(data, 1, 1);
     }
     WorldTexture(const string& filename)
     {
@@ -133,21 +142,25 @@ public:
             return;
         }
         image = std::make_shared<Image>(width, height);
+        std::vector<float> data;
 
         for (int j = 0; j < height; j++)
         {
             for (int i = 0; i < width; i++)
             {
-
                 constexpr float divider = 1.0f / 255.0f;
                 const unsigned int idx = i * 3 + 3 * width * j;
                 const float R = img[idx];
                 const float G = img[idx + 1];
                 const float B = img[idx + 2];
                 image->setPixel(i, j, Vec3(R, G, B));
+
+                data.push_back(YfromRGB(Vec3(R, G, B)));
             }
         }
 
+        _distribution = std::make_shared<Distribution2D>(data, width, height);
+        _distribution->writeTest();
         name = filename;
     }
 
