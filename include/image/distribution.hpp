@@ -17,6 +17,7 @@ struct Distribution1D {
             cdf.push_back(cdf[i - 1] + func[i - 1] / n);
         }
         funcInt = cdf[n];
+        std::cout << "funcInt" << funcInt << std::endl;
         float divFuncInt = 1.0f / funcInt;
         if (funcInt == 0) {
             for (int i = 1; i < n + 1; ++i) {
@@ -64,7 +65,7 @@ struct Distribution1D {
     }
 
     float getPDF(unsigned int index) const {
-        return func[index] / funcInt;
+        return func[index] / (funcInt * Count());
     }
 };
 
@@ -105,18 +106,22 @@ public:
     float getPDF(const Vec2& uv)const {
         unsigned int u = std::clamp(static_cast<int>(uv[0] * pMargin->Count()), 0, pMargin->Count() - 1);
         unsigned int v = std::clamp(static_cast<int>(uv[1] * pConditionalV[u]->Count()), 0, pConditionalV[u]->Count() - 1);
+        // std::cout << pMargin->funcInt << std::endl;
         return pConditionalV[u]->func[v] / pMargin->funcInt;
     }
 
     void writeTest() const {
         unsigned int width = pMargin->Count(), height = pConditionalV[0]->Count();
         auto image = std::make_shared<Image>(width, height);
+        float sum = 0;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 // image->setPixel(i, j, Vec3(1.0) * getPDF(Vec2(i / width, j / height)));
-                image->setPixel(i, j, Vec3(1.0) * getPDF(Vec2(i / width, j / height)));
+                image->setPixel(i, j, Vec3(1.0) * getPDF(Vec2(float(i) / width, float(j) / height)));
+                sum += getPDF(Vec2(float(i) / width, float(j) / height));
             }
         }
+        std::cout << "sum" << sum << std::endl;
         image->writePNG("PDF_Distribution");
     }
 };

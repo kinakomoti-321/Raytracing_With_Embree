@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "distribution.hpp"
 #include "color.hpp"
+#include "core/constant.hpp"
 
 using namespace std;
 
@@ -158,9 +159,10 @@ public:
                 data.push_back(YfromRGB(Vec3(R, G, B)));
             }
         }
-
+        // std::cout << data << std::endl;
         _distribution = std::make_shared<Distribution2D>(data, width, height);
         _distribution->writeTest();
+        image->writePNG("HDRtest");
         name = filename;
     }
 
