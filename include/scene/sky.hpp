@@ -28,7 +28,7 @@ public:
     Sky(const std::shared_ptr<WorldTexture>& le, const float scale) {
         LE = le;
         hasDirectionalLight = false;
-        lightScale = 1.0;
+        lightScale = scale;
     }
 
     Sky(const Vec3& LightDir, const Vec3& LightLe) {
@@ -46,11 +46,13 @@ public:
 
     Vec2 calcUVSphere(const Vec3& dir)const {
         Vec2 uv;
-        float theta = std::acos(dir[1]);
-        float phi = std::acos(dir[0] / sqrt(dir[0] * dir[0] + dir[2] * dir[2])) * ((dir[2] < 0.0) ? 1.0f : -1.0f);
+        float theta = std::acos(std::clamp(dir[1], -1.0f, 1.0f));
+        // float phi = std::acos(dir[0] / sqrt(dir[0] * dir[0] + dir[2] * dir[2])) * ((dir[2] < 0.0) ? 1.0f : -1.0f);
+        float p = std::atan2(dir[2], dir[0]);
+        float phi = (p < 0) ? (p + PI2) : p;
 
         uv[1] = std::clamp(theta * PI_INV, 0.0f, 1.0f);
-        uv[0] = std::clamp((phi + PI) * PI_INV2, 0.0f, 1.0f);
+        uv[0] = std::clamp(phi * PI_INV2, 0.0f, 1.0f);
         // std::cout << dir << std::endl;
         // std::cout << uv << std::endl;
         return uv;
@@ -58,14 +60,14 @@ public:
     }
     Vec3 Le(const Vec3& rayDir)const {
         Vec2 uv = calcUVSphere(rayDir);
-        return LE->getTex(uv[0], uv[1]);
+        return LE->getTex(uv[0], uv[1]) * lightScale;
     }
 
     Vec3 enviromentSmapling(const Vec2& sample, float& pdf, Vec3& le) const {
         Vec2 uv = LE->getUVsample(sample, pdf);
         le = LE->getTex(uv[0], uv[1]);
 
-        float theta = uv[1] * PI, phi = uv[0] * PI2;
+        float theta = uv[0] * PI, phi = uv[1] * PI2;
         float costheta = std::cos(theta), sintheta = std::sin(theta);
         float cosphi = std::cos(phi), sinphi = std::sin(phi);
 
@@ -94,16 +96,18 @@ public:
             is_directionalSample = true;
         }
         else {
+            //LightRandomSampling
             // Vec3 lightsampleDir = SphereSampling(sampler->getSample(), sampler->getSample(), pdf);
             // lightDirection = localToWorld(lightsampleDir, t, normal, b);
             // LightLe = Le(lightDirection);
             // is_directionalSample = false;
             // pdf *= (hasDireLight) ? 0.5f : 1.0f;
 
+
+            //LightImportanceSampling
             lightDirection = enviromentSmapling(Vec2(sampler->getSample(), sampler->getSample()), pdf, LightLe);
             is_directionalSample = false;
             LightLe *= lightScale;
-            // std::cout << pdf << std::endl;
         }
 
         info.distance = 1000.0;

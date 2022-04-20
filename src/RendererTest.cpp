@@ -37,7 +37,7 @@ int main() {
     auto tex7 = std::make_shared<Texture>("../texture/Earth.jpg");
     auto tex8 = std::make_shared<Texture>("../texture/Checker.png");
 
-    auto worldtex = std::make_shared<WorldTexture>("../texture/test.hdr");
+    auto worldtex = std::make_shared<WorldTexture>("../texture/TestHDR3.hdr");
     // auto worldtex = std::make_shared<WorldTexture>(Vec3(1.0));
     auto mat1 = std::make_shared<Diffuse>(Vec3(0.9));
     auto mat2 = std::make_shared<Diffuse>(Vec3(0.9, 0.2, 0.2));
@@ -51,8 +51,8 @@ int main() {
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
-    Vec3 cameraPos(-4.0, 0.0, -4.0);
-    Vec3 cameraDir = normalize(Vec3(0, 2.0, 0) - cameraPos);
+    Vec3 cameraPos(4.0, 0.0, -4.0);
+    Vec3 cameraDir = normalize(Vec3(0, 0.0, 0) - cameraPos);
 
 
     auto camera = std::make_shared<PinholeCamera>(cameraPos, cameraDir, 2.0f);
@@ -69,7 +69,7 @@ int main() {
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
-    scene.setSkySphere(worldtex, 2.0);
+    scene.setSkySphere(worldtex, 1.0);
 
     // scene.setSkyDirectionalLight(normalize(Vec3(1, 1, -1)), Vec3(2.0));
     scene.addPolygon("../model/dragon.obj", mat1, nullptr, vol);
@@ -85,7 +85,7 @@ int main() {
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator1, camera, 100);
+    renderer.rendererSet(width, height, integrator1, camera, 1000);
     // renderer.Render(scene, "MISreference", sampler);
     renderer.TimeLimitRender(scene, "MIS-Sample", sampler, 10000);
     // renderer.rendererSet(width, height, integrator2, camera, 100);

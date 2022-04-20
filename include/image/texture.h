@@ -133,19 +133,27 @@ public:
         _distribution = std::make_shared<Distribution2D>(image, 1, 1);
     }
 
-    WorldTexture(const string& filename)
+    WorldTexture(const string& filename, const unsigned int mipmapLevel = 1)
     {
-        cout << "Texture Loading :" << filename << endl;
+        cout << "---------------------------" << endl;
+        cout << "Texture Load :" << filename << endl;
+        cout << "---------------------------" << endl;
+
+
         int width, height, channels;
         float* img = stbi_loadf(filename.c_str(), &width, &height, &channels, 3);
+
+        cout << endl << "Texture Information" << endl;
+        cout << "Width : " << width << ", Heigh : " << height << endl;
+        cout << "Format : HDR" << endl;
+
         if (img == NULL)
         {
-            cout << "Texture " << filename << " Load Failed" << endl;
+            cout << "*** Error : " << filename << " Load Failed ***" << endl;
             image = make_shared<Image>(1, 1);
             return;
         }
         image = std::make_shared<Image>(width, height);
-        std::vector<float> data;
 
         for (int j = 0; j < height; j++)
         {
@@ -160,9 +168,10 @@ public:
             }
         }
 
-        _distribution = std::make_shared<Distribution2D>(image, width, height);
-        _distribution->writeTest();
-        // image->writePNG("HDRtest");
+        cout << "---------------------------" << endl;
+        cout << "Texture Load finished :" << filename << endl;
+        cout << "---------------------------" << endl;
+        _distribution = std::make_shared<Distribution2D>(image, width, height, mipmapLevel);
         name = filename;
     }
 
