@@ -37,7 +37,7 @@ int main() {
     auto tex7 = std::make_shared<Texture>("../texture/Earth.jpg");
     auto tex8 = std::make_shared<Texture>("../texture/Checker.png");
 
-    auto worldtex = std::make_shared<WorldTexture>("../texture/TestHDR1.hdr");
+    auto worldtex = std::make_shared<WorldTexture>("../texture/test.hdr");
     // auto worldtex = std::make_shared<WorldTexture>(Vec3(1.0));
     auto mat1 = std::make_shared<Diffuse>(Vec3(0.9));
     auto mat2 = std::make_shared<Diffuse>(Vec3(0.9, 0.2, 0.2));
@@ -51,8 +51,8 @@ int main() {
 
     auto lit1 = std::make_shared<Light>(Vec3(1.0) * 3.0);
 
-    Vec3 cameraPos(0.0, 0.0, -4.0);
-    Vec3 cameraDir = normalize(Vec3(0, 0, 0) - cameraPos);
+    Vec3 cameraPos(-4.0, 0.0, -4.0);
+    Vec3 cameraDir = normalize(Vec3(0, 2.0, 0) - cameraPos);
 
 
     auto camera = std::make_shared<PinholeCamera>(cameraPos, cameraDir, 2.0f);
@@ -69,25 +69,25 @@ int main() {
 
     auto sampler = std::make_shared<RNGrandom>();
     Scene scene;
-    scene.setSkySphere(worldtex);
+    scene.setSkySphere(worldtex, 2.0);
 
-    scene.setSkyDirectionalLight(normalize(Vec3(1, 1, -1)), Vec3(2.0));
-    scene.addPolygon("../model/dragon.obj", mat7, nullptr, vol);
-    // scene.addPolygon("../model/floor.obj", mat9);
+    // scene.setSkyDirectionalLight(normalize(Vec3(1, 1, -1)), Vec3(2.0));
+    scene.addPolygon("../model/dragon.obj", mat1, nullptr, vol);
+    scene.addPolygon("../model/floor.obj", mat9);
     // scene.addPolygon("../model/Sphere1.obj", mat6);
     // scene.addPolygon("../model/Sphere2.obj", mat6);
     // scene.addPolygon("../model/UVBox.obj", mat5);
-    scene.addPolygon("../model/cornel_L.obj", mat3);
-    scene.addPolygon("../model/cornel_R.obj", mat2);
-    scene.addPolygon("../model/cornelBox.obj", mat1);
+    // scene.addPolygon("../model/cornel_L.obj", mat3);
+    // scene.addPolygon("../model/cornel_R.obj", mat2);
+    // scene.addPolygon("../model/cornelBox.obj", mat1);
     // scene.addPolygon("../model/Light.obj", mat1, lit1);
     // scene.addPolygon("../model/CornellBox-Empty-CO.obj", mat1);
     scene.SceneBuild();
 
     Renderer renderer;
-    renderer.rendererSet(width, height, integrator2, camera1, 100);
+    renderer.rendererSet(width, height, integrator1, camera, 100);
     // renderer.Render(scene, "MISreference", sampler);
-    renderer.TimeLimitRender(scene, "MIS-Sample", sampler, 60000);
+    renderer.TimeLimitRender(scene, "MIS-Sample", sampler, 10000);
     // renderer.rendererSet(width, height, integrator2, camera, 100);
     // renderer.TimeLimitRender(scene, "IBL-PTtest", sampler, 60000);
     // renderer.rendererSet(width, height, integrator1, camera, 100);

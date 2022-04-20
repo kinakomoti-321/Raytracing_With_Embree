@@ -38,8 +38,8 @@ public:
         sky = Sky(le);
     }
 
-    void setSkySphere(const std::shared_ptr<WorldTexture>& le) {
-        sky = Sky(le);
+    void setSkySphere(const std::shared_ptr<WorldTexture>& le, const float scale) {
+        sky = Sky(le, scale);
     }
 
     void setSkyDirectionalLight(const Vec3& dir, const Vec3& le) {

@@ -12,6 +12,7 @@ private:
     std::shared_ptr<WorldTexture> LE;
     Vec3 DirectionalLight = Vec3(0);
     Vec3 DirectionalLightLe = Vec3(0);
+    float lightScale = 1.0;
     bool hasDirectionalLight;
 public:
     Sky() {
@@ -24,9 +25,10 @@ public:
         hasDirectionalLight = false;
     }
 
-    Sky(const std::shared_ptr<WorldTexture>& le) {
+    Sky(const std::shared_ptr<WorldTexture>& le, const float scale) {
         LE = le;
         hasDirectionalLight = false;
+        lightScale = 1.0;
     }
 
     Sky(const Vec3& LightDir, const Vec3& LightLe) {
@@ -59,6 +61,21 @@ public:
         return LE->getTex(uv[0], uv[1]);
     }
 
+    Vec3 enviromentSmapling(const Vec2& sample, float& pdf, Vec3& le) const {
+        Vec2 uv = LE->getUVsample(sample, pdf);
+        le = LE->getTex(uv[0], uv[1]);
+
+        float theta = uv[1] * PI, phi = uv[0] * PI2;
+        float costheta = std::cos(theta), sintheta = std::sin(theta);
+        float cosphi = std::cos(phi), sinphi = std::sin(phi);
+
+        bool hasDireLight = hasDirectionalLight;
+        pdf *= (hasDireLight) ? 0.5f : 1.0f;
+        pdf /= (2.0f * PI * PI * sintheta);
+
+        return Vec3(sintheta * cosphi, sintheta * sinphi, costheta);
+    }
+
     //Light Direction return
     Vec3 sampleLightSampling(const std::shared_ptr<Sampler>& sampler,
         IntersectInfo& info, float& pdf, Vec3& LightLe, bool& is_directionalSample)const {
@@ -68,8 +85,8 @@ public:
         Vec3 t, b;
 
         tangentSpaceBasis(normal, t, b);
-        bool hasDireLight = hasDirectionalLight;
         float p = sampler->getSample();
+        bool hasDireLight = hasDirectionalLight;
         if (p < 0.5f && hasDireLight) {
             lightDirection = DirectionalLight;
             pdf = 0.5f;
@@ -77,11 +94,15 @@ public:
             is_directionalSample = true;
         }
         else {
-            Vec3 lightsampleDir = SphereSampling(sampler->getSample(), sampler->getSample(), pdf);
-            lightDirection = localToWorld(lightsampleDir, t, normal, b);
-            LightLe = Le(lightDirection);
-            pdf *= (hasDireLight) ? 0.5f : 1.0f;
+            // Vec3 lightsampleDir = SphereSampling(sampler->getSample(), sampler->getSample(), pdf);
+            // lightDirection = localToWorld(lightsampleDir, t, normal, b);
+            // LightLe = Le(lightDirection);
+            // is_directionalSample = false;
+            // pdf *= (hasDireLight) ? 0.5f : 1.0f;
+
+            lightDirection = enviromentSmapling(Vec2(sampler->getSample(), sampler->getSample()), pdf, LightLe);
             is_directionalSample = false;
+            LightLe *= lightScale;
             // std::cout << pdf << std::endl;
         }
 
@@ -91,6 +112,7 @@ public:
 
         return lightDirection;
     }
+
     float skyLightPointPDF(const Vec3& dir)const {
         return 1.0f / (2.0f * PI) * ((hasDirectionalLight) ? 0.5f : 1.0f);
 

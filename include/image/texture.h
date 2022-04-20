@@ -122,15 +122,17 @@ public:
         image->setPixel(0, 0, Vec3(0));
         std::vector<float> data;
         data.push_back(1);
-        _distribution = std::make_shared<Distribution2D>(data, 1, 1);
+        _distribution = std::make_shared<Distribution2D>(image, 1, 1);
     }
+
     WorldTexture(const Vec3& col) {
         image = std::make_shared<Image>(1, 1);
         image->setPixel(0, 0, col);
         std::vector<float> data;
         data.push_back(1);
-        _distribution = std::make_shared<Distribution2D>(data, 1, 1);
+        _distribution = std::make_shared<Distribution2D>(image, 1, 1);
     }
+
     WorldTexture(const string& filename)
     {
         cout << "Texture Loading :" << filename << endl;
@@ -155,14 +157,12 @@ public:
                 const float G = img[idx + 1];
                 const float B = img[idx + 2];
                 image->setPixel(i, j, Vec3(R, G, B));
-
-                data.push_back(YfromRGB(Vec3(R, G, B)));
             }
         }
-        // std::cout << data << std::endl;
-        _distribution = std::make_shared<Distribution2D>(data, width, height);
+
+        _distribution = std::make_shared<Distribution2D>(image, width, height);
         _distribution->writeTest();
-        image->writePNG("HDRtest");
+        // image->writePNG("HDRtest");
         name = filename;
     }
 
@@ -173,6 +173,14 @@ public:
         unsigned int v1 = std::clamp(static_cast<int>(uv[1] * image->getHeight()), 0, int(image->getHeight() - 1));
 
         return image->getPixel(u1, v1);
+    }
+
+    Vec2 getUVsample(const Vec2& sample, float& pdf) const {
+        return _distribution->getSample(sample, pdf);
+    }
+
+    float getUVpdf(const Vec2& uv) {
+        return _distribution->getPDF(uv);
     }
 
     void writePNG(std::string filename) {
