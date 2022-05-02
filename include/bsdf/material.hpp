@@ -15,6 +15,7 @@
 class Material {
 public:
     virtual std::shared_ptr<BSDF> getBSDF(const Vec2& uv) const = 0;
+    virtual Vec3 getBaseColor(const Vec2& uv) const = 0;
     virtual std::string getMaterialName()const = 0;
 };
 
@@ -34,6 +35,10 @@ public:
 
     std::string getMaterialName()const {
         return "Diffuse";
+    }
+
+    Vec3 getBaseColor(const Vec2& uv) const {
+        return _baseColor->getTex(uv[0], uv[1]);
     }
 };
 
@@ -56,6 +61,9 @@ public:
     }
     std::string getMaterialName()const {
         return "IdealGlass";
+    }
+    Vec3 getBaseColor(const Vec2& uv) const {
+        return _basecolor->getTex(uv[0], uv[1]);
     }
 };
 
@@ -87,6 +95,9 @@ public:
     std::string getMaterialName()const {
         return "Metallic";
     }
+    Vec3 getBaseColor(const Vec2& uv) const {
+        return _baseColor->getTex(uv[0], uv[1]);
+    }
 };
 
 class Mirror : public Material {
@@ -104,5 +115,8 @@ public:
     }
     std::string getMaterialName()const {
         return "Mirror";
+    }
+    Vec3 getBaseColor(const Vec2& uv) const {
+        return _baseColor->getTex(uv[0], uv[1]);
     }
 };

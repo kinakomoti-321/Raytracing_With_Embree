@@ -19,25 +19,37 @@ private:
 
 public:
     ThinLens(const Vec3& origin, const Vec3& cameraDir,
-        const float& dist, const float& delta, const float& F)
+        const float filmsize, const float FOV, const float& Fnumber)
+        :origin(origin), cameraDir(cameraDir), F(Fnumber) {
+        f = 0.5f * filmsize / std::tan(0.5f * FOV);
+        R = 2.0f * f / Fnumber;
 
-        :origin(origin), cameraDir(cameraDir), F(F) {
-        a = delta * dist;
-        b = (1.0f - delta) * dist;
-        f = a * b / (a + b);
-        R = f / (2.0 * F);
-
+        a = 10000.0f;
+        b = f;
+        std::cout << "b" << b << std::endl;
         Vec3 t, bid;
         tangentSpaceBasis(cameraDir, t, bid);
         cameraUp = t;
         cameraSide = bid;
-
     }
 
+    void forcus(const Vec3 pos) {
+        float zf = dot(pos - origin, cameraDir);
+        a = zf - b;
+        float delta = 0.5f * ((b - a) - std::sqrt(a + b) * std::sqrt(a + b - 4.0f * f));
+        std::cout << "delta" << delta << std::endl;
+        a += delta;
+        b -= delta;
+
+        std::cout << "number a " << a << std::endl;
+        std::cout << "number b" << b << std::endl;
+        std::cout << "forcus position" << pos << std::endl;
+        std::cout << "forcus depth" << zf << std::endl;
+    }
     Ray getCameraRay(float u, float v,
         const std::shared_ptr<Sampler>& sampler, float& weight)const {
 
-        Vec3 X0 = origin + u * cameraUp + v * cameraSide;
+        Vec3 X0 = origin + -u * cameraUp + v * cameraSide;
 
         Vec3 C = origin + cameraDir * a;
         Vec3 e = normalize(C - X0);
@@ -54,7 +66,7 @@ public:
         camera.direction = normalize(P - S);
 
         float cosine = std::abs(dot(camera.direction, cameraDir));
-        weight = cosine * cosine * cosine * cosine / (pdf * a * a);
+        weight = 1.0;
 
         return camera;
     }

@@ -40,60 +40,25 @@ public:
 
             //directions
             // wo: 入射方向,wi:反射方向
-            Vec3 t, b;
-            tangentSpaceBasis(info.normal, t, b);
-            Vec3 wo = localToWorld(-next_ray.direction, t, info.normal, b);
+            // Vec3 t, b;
+            // tangentSpaceBasis(info.normal, t, b);
+            // Vec3 wo = localToWorld(-next_ray.direction, t, info.normal, b);
+            // Vec3 wi;
+            // float pdf;
+            // Vec3 bsdf;
+            // auto mat = scene.faceMaterial(info.FaceID);
+            // auto material = mat->getBSDF(info.texcoord);
+            Vec3 wo = -next_ray.direction;
             Vec3 wi;
             float pdf;
             Vec3 bsdf;
+
+            Vec3 t, b;
+            tangentSpaceBasis(info.normal, t, b);
+
             auto mat = scene.faceMaterial(info.FaceID);
             auto material = mat->getBSDF(info.texcoord);
-
             //NEE
-            // {
-            //     // std::cout << "NEE" << std::endl;
-            //     wo = -next_ray.direction;
-            //     //光源サンプリング
-            //     IntersectInfo lightInfo;
-            //     lightInfo.position = info.position;
-            //     lightInfo.normal = info.normal;
-            //     Vec3 lightLe;
-            //     bool is_scenesample;
-            //     Vec3 lightDir =
-            //         scene.lightPointSampling(pdf, sample, lightInfo, lightLe, is_scenesample);
-            //     // std::cout << "NEE" << std::endl;
-            //     Ray shadowRay(info.position, lightDir);
-
-            //     IntersectInfo shadowInfo;
-
-            //     if (!scene.Intersection(shadowRay, shadowInfo)) {
-            //         float cosine1 = std::abs(dot(info.normal, lightDir));
-            //         float cosine2 = std::abs(dot(lightInfo.normal, -lightDir));
-
-            //         wi = lightDir;
-
-            //         Vec3 local_wo = worldtoLocal(wo, t, info.normal, b);
-            //         Vec3 local_wi = worldtoLocal(wi, t, info.normal, b);
-
-            //         bsdf = material->evaluateBSDF(local_wo, local_wi);
-            //         //MISWightの計算
-            //         float lightPDF = pdf;
-            //         // std::cout << pdf << std::endl;
-            //         //幾何項（ヤコビアン）の計算
-            //         float G = (!is_scenesample) ? (cosine2 / (lightInfo.distance * lightInfo.distance)) : 1.0f;
-
-            //         //PTでのPDF
-            //         float pathPDF = material->samplePDF(local_wo, local_wi) * G;
-            //         // std::cout << "NEE" << std::endl;
-            //         float MISweight = lightPDF / (lightPDF + pathPDF);
-
-            //         //寄与の追加
-            //         // LTE += throughput * MISweight * (bsdf * G * cosine1 / pdf) * lightLe;
-            //         LTE += throughput * (bsdf * G * cosine1 / pdf) * lightLe;
-            //         // std::cout << "NEE" << std::endl;
-            //     }
-            //     // std::cout << "Finish" << std::endl;
-            // }
             {
                 IntersectInfo lightInfo;
                 lightInfo.position = info.position;
@@ -106,11 +71,6 @@ public:
 
                 Ray shadowRay(info.position, lightDir);
 
-                // std::cout << std::endl;
-                // std::cout << lightDir << std::endl;
-                // std::cout << lightLe << std::endl;
-                // std::cout << pdf << std::endl;
-                // std::cout << lightInfo.distance << std::endl;
 
                 shadowRay.maxt = lightInfo.distance - 0.001f;
                 IntersectInfo shadowInfo;
@@ -132,8 +92,54 @@ public:
                     float MISweight = lightpdf / (lightpdf + pathpdf);
 
                     LTE += throughput * MISweight * (bsdf * G * cosine1 / pdf) * lightLe;
+                    // LTE += throughput * (bsdf * G * cosine1 / pdf) * lightLe;
                 }
             }
+            // {
+            //     IntersectInfo lightInfo;
+            //     lightInfo.position = info.position;
+            //     lightInfo.normal = info.normal;
+            //     Vec3 lightLe;
+            //     bool is_sceneSample;
+            //     bool is_directionalSample;
+            //     Vec3 lightDir =
+            //         scene.lightPointSampling(pdf, sample, lightInfo, lightLe, is_sceneSample, is_directionalSample);
+
+            //     Ray shadowRay(info.position, lightDir);
+
+            //     // std::cout << std::endl;
+            //     // std::cout << lightDir << std::endl;
+            //     // std::cout << lightLe << std::endl;
+            //     // std::cout << pdf << std::endl;
+            //     // std::cout << lightInfo.distance << std::endl;
+
+            //     shadowRay.maxt = lightInfo.distance - 0.001f;
+            //     IntersectInfo shadowInfo;
+
+            //     if (!scene.Intersection(shadowRay, shadowInfo)) {
+            //         float cosine1 = std::abs(dot(info.normal, lightDir));
+            //         float cosine2 = std::abs(dot(lightInfo.normal, -lightDir));
+
+            //         wi = lightDir;
+
+            //         Vec3 local_wo = worldtoLocal(wo, t, info.normal, b);
+            //         Vec3 local_wi = worldtoLocal(wi, t, info.normal, b);
+
+            //         bsdf = material->evaluateBSDF(local_wo, local_wi);
+
+            //         float G = (is_sceneSample) ? 1.0f : cosine2 / (lightInfo.distance * lightInfo.distance);
+
+
+            //         // std::cout << "cosine1" << cosine1 << std::endl;
+            //         // std::cout << cosine2 << std::endl;
+            //         // std::cout << wi << std::endl;
+            //         // std::cout << bsdf << std::endl;
+            //         // std::cout << G << std::endl;;
+            //         // std::cout << throughput * (bsdf * G * cosine1 / pdf) * lightLe << std::endl;
+            //         // std::cout << std::endl;
+            //         LTE += throughput * (bsdf * G * cosine1 / pdf) * lightLe;
+            //     }
+            // }
             //Pathtrace
             {
                 // std::cout << "PathTrace" << std::endl;

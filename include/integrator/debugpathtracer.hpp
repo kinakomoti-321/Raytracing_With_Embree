@@ -1,8 +1,10 @@
+
 #pragma once 
 #include <memory>
 #include <cmath>
 #include "sampling/sampler.hpp"
 #include "math/vec3.h"
+#include "math/hash.h"
 #include "core/ray.h"
 #include "scene/scene.h"
 #include "sampling/sampler.hpp"
@@ -10,16 +12,17 @@
 #include <memory>
 #include "bsdf/lambert.hpp"
 #include "bsdf/bsdf.hpp"
-class PathTracer :public Integrator {
+class DebugPathTracer :public Integrator {
 public:
     Vec3 integrate(const Ray& ray, const Scene& scene, std::shared_ptr<Sampler>& sampler)const {
         const int MaxDepth = 10;
-        float p = 1.0f;
+        float p = 0.99f;
         Vec3 throughput(1.0);
         Vec3 LTE(0);
         Ray next_ray = ray;
+        float depth = 0;
         for (int i = 0; i < MaxDepth; i++) {
-            p = std::min(std::max(std::max(throughput[0], throughput[1]), throughput[2]), 1.0f);
+            // p = std::min(std::max(std::max(throughput[0], throughput[1]), throughput[2]), 1.0f);
             if (sampler->getSample() > p) {
                 break;
             }
@@ -34,6 +37,7 @@ public:
 
             if (scene.faceHasLight(info.FaceID)) {
                 LTE = throughput * scene.faceLight(info.FaceID)->le();
+                // std::cout << LTE << std::endl;
                 break;
             }
             Vec3 t, b;
@@ -49,20 +53,29 @@ public:
 
 
             bsdf = inbsdf->samplingBSDF(wo, wi, pdf, sampler);
+            // bsdf = inbsdf->evaluateBSDF(wo, wi);
+            // pdf = 1 / PI2;
 
             const Vec3 next_direction = localToWorld(wi, t, info.normal, b);
             const float cosine = std::abs(dot(info.normal, next_direction));
             throughput *= bsdf * cosine / pdf;
+            throughput = Vec3(std::abs(throughput[0]), std::abs(throughput[1]), std::abs(throughput[2]));
+            if (isnan(throughput[0])) {
+                std::cout << "MaterialCol " << material->getBaseColor(info.texcoord) << std::endl;
+                std::cout << "Normal " << info.normal << std::endl;
 
-            if (info.distance < 0.00) {
-                std::cout << material->getBaseColor(info.texcoord) << std::endl;
-                std::cout << info.distance << std::endl;
-                std::cout << bsdf << std::endl;
-                std::cout << cosine << std::endl;
-                std::cout << pdf << std::endl;
+                std::cout << "NextDirection " << next_direction << std::endl;
+                std::cout << "distance " << info.distance << std::endl;
+                std::cout << "bsdf " << bsdf << std::endl;
+                std::cout << "cosine " << cosine << std::endl;
+                std::cout << "pdf " << pdf << std::endl;
+                std::cout << std::endl;
             }
             next_ray = Ray(info.position, next_direction);
+            depth++;
         }
+        Vec3 col = Vec3(YfromRGB(LTE));
+        if (isnan(LTE[0])) col = Vec3(1, 0, 0);
         return LTE;
     }
     std::string getIntegratorType()const {

@@ -118,7 +118,10 @@ public:
     }
 
     float skyLightPointPDF(const Vec3& dir)const {
-        return 1.0f / (2.0f * PI) * ((hasDirectionalLight) ? 0.5f : 1.0f);
+        Vec2 uv = this->calcUVSphere(dir);
+        float pdf = LE->getUVpdf(uv);
+        pdf /= (2.0f * PI * PI * std::sin(uv[0] * PI));
+        return pdf * ((hasDirectionalLight) ? 0.5f : 1.0f);
 
     }
 };

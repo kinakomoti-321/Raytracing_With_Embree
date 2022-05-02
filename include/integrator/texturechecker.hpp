@@ -13,11 +13,8 @@ public:
         IntersectInfo info;
         if (!scene.Intersection(ray, info)) return Vec3(0);
         auto material = scene.faceMaterial(info.FaceID);
-        auto bsdf = material->getBSDF(info.texcoord);
-        Vec3 wo;
-        Vec3 wi;
-        float pdf;
-        return bsdf->samplingBSDF(wo, wi, pdf, sampler);
+        // if (norm(material->getBaseColor(info.texcoord)) < 0.001f) return Vec3(1, 0, 0);
+        return material->getBaseColor(info.texcoord);
     };
     std::string getIntegratorType() const {
         return "UVChecker";

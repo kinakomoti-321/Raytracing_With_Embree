@@ -20,6 +20,7 @@ class Texture
 {
 private:
     Vec2 calcTexCoord(float u, float v) const {
+        v *= -1.0f;
         if (u > 1.0f) {
             u = std::fmod(u, 1.0f);
         }
@@ -50,12 +51,20 @@ public:
     }
     Texture(const string& filename)
     {
-        cout << "Texture Loading :" << filename << endl;
+        cout << "---------------------------" << endl;
+        cout << "Texture Load :" << filename << endl;
+        cout << "---------------------------" << endl;
+
         int width, height, channels;
         unsigned char* img = stbi_load(filename.c_str(), &width, &height, &channels, 3);
+
+        cout << endl << "Texture Information" << endl;
+        cout << "Width : " << width << ", Heigh : " << height << endl;
+        cout << "Format : HDR" << endl << endl;
+
         if (img == NULL)
         {
-            cout << "Texture " << filename << " Load Failed" << endl;
+            cout << "*** Error : " << filename << " Load Failed ***" << endl;
             image = make_shared<Image>(1, 1);
             return;
         }
@@ -76,6 +85,9 @@ public:
         }
 
         name = filename;
+        cout << "---------------------------" << endl;
+        cout << "Texture Load finished :" << filename << endl;
+        cout << "---------------------------" << endl;
     }
 
     Vec3 getTex(float u, float v)

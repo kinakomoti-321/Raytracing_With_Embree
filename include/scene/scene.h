@@ -129,7 +129,7 @@ public:
             info.position = inray.post(info.distance);
             info.FaceID = ray.hit.primID;
             Vec2 bary = Vec2(ray.hit.u, ray.hit.v);
-            info.normal = poly.getFaceNormal(info.FaceID, bary);
+            info.normal = normalize(poly.getFaceNormal(info.FaceID, bary));
             info.texcoord = poly.getFaceTexcoord(info.FaceID, bary);
 
             return true;
