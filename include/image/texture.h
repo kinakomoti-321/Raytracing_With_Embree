@@ -130,19 +130,21 @@ public:
     std::shared_ptr<Distribution2D> _distribution;
 
     WorldTexture() {
-        image = std::make_shared<Image>(1, 1);
-        image->setPixel(0, 0, Vec3(0));
-        std::vector<float> data;
-        data.push_back(1);
-        _distribution = std::make_shared<Distribution2D>(image, 1, 1);
+        image = std::make_shared<Image>(2, 2);
+        image->setPixel(0, 0, Vec3(0.001));
+        image->setPixel(1, 0, Vec3(0.001));
+        image->setPixel(0, 1, Vec3(0.001));
+        image->setPixel(1, 1, Vec3(0.001));
+        _distribution = std::make_shared<Distribution2D>(image, 2, 2);
     }
 
     WorldTexture(const Vec3& col) {
-        image = std::make_shared<Image>(1, 1);
+        image = std::make_shared<Image>(2, 2);
         image->setPixel(0, 0, col);
-        std::vector<float> data;
-        data.push_back(1);
-        _distribution = std::make_shared<Distribution2D>(image, 1, 1);
+        image->setPixel(1, 0, col);
+        image->setPixel(0, 1, col);
+        image->setPixel(1, 1, col);
+        _distribution = std::make_shared<Distribution2D>(image, 2, 2);
     }
 
     WorldTexture(const string& filename, const unsigned int mipmapLevel = 1)

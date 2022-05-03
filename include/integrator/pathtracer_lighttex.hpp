@@ -10,7 +10,7 @@
 #include <memory>
 #include "bsdf/lambert.hpp"
 #include "bsdf/bsdf.hpp"
-class PathTracer :public Integrator {
+class PathTracer_LightTextureON :public Integrator {
 public:
     Vec3 integrate(const Ray& ray, const Scene& scene, std::shared_ptr<Sampler>& sampler)const {
         const int MaxDepth = 10;
@@ -33,9 +33,9 @@ public:
             }
 
             if (scene.faceHasLight(info.FaceID)) {
-                LTE = throughput * scene.faceLight(info.FaceID)->le();
-                break;
+                LTE = throughput * scene.faceLight(info.FaceID)->le(info.texcoord);
             }
+
             Vec3 t, b;
             tangentSpaceBasis(info.normal, t, b);
             Vec3 wo = worldtoLocal(-next_ray.direction, t, info.normal, b);
@@ -59,6 +59,6 @@ public:
         return LTE;
     }
     std::string getIntegratorType()const {
-        return "PathTrace";
+        return "PathTrace_LightTextureON";
     }
 };

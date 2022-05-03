@@ -6,7 +6,7 @@ project(main LANGUAGES C CXX)
 find_package(embree 3.0 REQUIRED)
 find_package(OpenMP)
 
-add_executable(main "src/celestial_globe.cpp")
+add_executable(main "src/volume_nee_test.cpp")
 target_include_directories(main PRIVATE "include")
 target_include_directories(main PRIVATE "external")
 target_link_libraries(main embree)

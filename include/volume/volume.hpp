@@ -10,9 +10,11 @@ class Volume {
 public:
     virtual float sampleS(std::shared_ptr<Sampler>& Sampler) const = 0;
     virtual Vec3 phaseFanc(const Vec3& wo, std::shared_ptr<Sampler>& Sampler)const = 0;
+    virtual float evaluatePhaseFunc(const Vec3& wo, const Vec3& wi) const = 0;
     virtual float getmueA()const = 0;
     virtual float getmueS()const = 0;
     virtual float getmueT()const = 0;
+    virtual float getTransmittance(float t) const = 0;
     virtual Vec3 Le() const = 0;
 };
 
@@ -51,14 +53,21 @@ public:
         else {
             cosTheta = u;
         }
-        float sinTheta = std::sqrt(std::max(1.0f - cosTheta * cosTheta, 0.0f));
 
+        float sinTheta = std::sqrt(std::max(1.0f - cosTheta * cosTheta, 0.0f));
         float phi = 2.0f * M_PI * v;
         wi = Vec3(sinTheta * std::cos(phi), cosTheta, sinTheta * std::sin(phi));
         wi = localToWorld(wi, t, wo, b);
 
         return wi;
     };
+
+    float evaluatePhaseFunc(const Vec3& wo, const Vec3& wi)const override {
+        float cosine = dot(wo, wi);
+        float g2 = phaseG * phaseG;
+
+        return PI_INV4 * (1 - g2) / std::pow(1.0f + g2 + 2 * phaseG * cosine, 1.5f);
+    }
     float getmueA()const override {
         return mueA;
     };
@@ -67,6 +76,9 @@ public:
     };
     float getmueT()const override {
         return mueT;
+    };
+    float getTransmittance(float t)const override {
+        return std::exp(-mueT * t);
     };
     Vec3 Le() const override {
         return le;

@@ -42,6 +42,7 @@ struct Distribution1D {
 
     unsigned int getOffset(float u)const {
         //二分探索
+
         int first = 0, len = cdf.size();
 
         while (len > 0) {
@@ -61,6 +62,7 @@ struct Distribution1D {
     float getSample(const float u, float& pdf, unsigned int& offset) const {
         offset = getOffset(u);
         float du = u - cdf[offset];
+
         if ((cdf[offset + 1] - cdf[offset]) > 0.0) {
             du /= (cdf[offset + 1] - cdf[offset]);
         }
@@ -91,7 +93,7 @@ private:
     std::unique_ptr<Distribution1D> pMargin;
 
 public:
-    Distribution2D(const std::shared_ptr<Image>& data, int nu, int nv, unsigned int mipmapLevel = 5) {
+    Distribution2D(const std::shared_ptr<Image>& data, int nu, int nv, unsigned int mipmapLevel = 1) {
         for (int i = 0; i < nu / mipmapLevel; i++) {
             std::vector<float> func;
             for (int j = 0; j < nv / mipmapLevel; j++) {
@@ -114,7 +116,6 @@ public:
         float v = pConditionalV[index]->getSample(rnd[1], pdf2, dummyv);
 
         pdf = pdf1 * pdf2;
-
         return Vec2(u, v);
     }
 
