@@ -93,7 +93,7 @@ int main() {
 
     Renderer renderer;
     renderer.rendererSet(width, height, integrator3, camera, 100);
-    renderer.Render(scene, "Volume_nee_reference", sampler);
+    renderer.Render(scene, "Volume_nee_reference2", sampler);
 
     // renderer.TimeLimitRender(scene, "MIS-Sample1", sampler, 60000);
     // renderer.rendererSet(width, height, integrator2, camera, 100);

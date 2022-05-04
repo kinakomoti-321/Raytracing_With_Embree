@@ -55,37 +55,45 @@ class VolumeNEE : public Integrator {
                     float mueT = vol->getmueT();
                     float mueA = vol->getmueA();
 
-                    {
-                        IntersectInfo lightInfo;
-                        Vec3 VolPos = vol_ray.origin;
-                        lightInfo.position = VolPos;
-                        lightInfo.normal = vol_ray.direction;
-                        Vec3 lightLe;
-                        bool is_sceneSample;
-                        bool is_directionalSample;
-                        float pdf;
-                        Vec3 lightDir = scene.lightPointSampling(pdf, sampler, lightInfo, lightLe, is_sceneSample, is_directionalSample);
+                    // {
+                    //     IntersectInfo lightInfo;
+                    //     Vec3 VolPos = vol_ray.origin;
+                    //     lightInfo.position = VolPos;
+                    //     lightInfo.normal = vol_ray.direction;
+                    //     Vec3 lightLe;
+                    //     bool is_sceneSample;
+                    //     bool is_directionalSample;
+                    //     float pdf;
+                    //     Vec3 lightDir = scene.lightPointSampling(pdf, sampler, lightInfo, lightLe, is_sceneSample, is_directionalSample);
 
-                        Ray VolBorderRay(VolPos, lightDir);
-                        VolBorderRay.maxt = lightInfo.distance - 0.001f;
-                        IntersectInfo VolBorderInfo;
-                        // std::cout << "test " << std::endl;
-                        if (scene.Intersection(VolBorderRay, VolBorderInfo)) {
-                            if (scene.faceHasVolume(VolBorderInfo.FaceID)) {
-                                //ボリュームの境界情報を得る
-                                Ray VolShadowRay(VolBorderRay.post(VolBorderInfo.distance), lightDir);
-                                VolShadowRay.maxt = lightInfo.distance - VolBorderInfo.distance - 0.001f;
-                                IntersectInfo VolShadowInfo;
-                                if (!scene.Intersection(VolShadowRay, VolShadowInfo)) {
-                                    float cosine2 = std::abs(dot(lightInfo.normal, lightDir));
-                                    float phase = vol->evaluatePhaseFunc(-vol_ray.direction, lightDir);
-                                    float G = (is_sceneSample) ? 1.0f : cosine2 / (lightInfo.distance * lightInfo.distance);
-                                    Vec3 transLit = lightLe * vol->getTransmittance(VolBorderInfo.distance);
-                                    LTE += (mueT / (mueA + mueT)) * throughput * phase * G * cosine2 / pdf;
-                                }
-                            }
-                        }
-                    }
+                    //     Ray VolBorderRay(VolPos, lightDir);
+                    //     VolBorderRay.maxt = lightInfo.distance - 0.001f;
+                    //     IntersectInfo VolBorderInfo;
+                    //     // std::cout << "test " << std::endl;
+                    //     if (scene.Intersection(VolBorderRay, VolBorderInfo)) {
+                    //         if (scene.faceHasVolume(VolBorderInfo.FaceID)) {
+                    //             //ボリュームの境界情報を得る
+                    //             Ray VolShadowRay(VolBorderRay.post(VolBorderInfo.distance), lightDir);
+                    //             VolShadowRay.maxt = lightInfo.distance - VolBorderInfo.distance - 0.001f;
+                    //             IntersectInfo VolShadowInfo;
+                    //             if (!scene.Intersection(VolShadowRay, VolShadowInfo)) {
+                    //                 float cosine2 = std::abs(dot(lightInfo.normal, lightDir));
+                    //                 float phase = vol->evaluatePhaseFunc(-vol_ray.direction, lightDir);
+                    //                 float G = (is_sceneSample) ? 1.0f : cosine2 / (lightInfo.distance * lightInfo.distance);
+                    //                 Vec3 transLit = lightLe * vol->getTransmittance(VolBorderInfo.distance);
+
+                    //                 // std::cout << "LTE" << LTE << std::endl;
+                    //                 // std::cout << "phase" << phase << std::endl;
+                    //                 // std::cout << "G" << G << std::endl;
+                    //                 // std::cout << "throughput" << throughput << std::endl;
+                    //                 // std::cout << "transLit" << transLit << std::endl;
+
+                    //                 LTE += (mueT / (mueA + mueT)) * throughput * phase * G * cosine2 / pdf;
+                    //                 // std::cout << "LTE" << LTE << std::endl;
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     volDir = vol->phaseFanc(volDir, sampler);
                     vol_ray = Ray(vol_ray.origin + t * vol_ray.direction, volDir);
                     throughput *= mueT / (mueA + mueT);
